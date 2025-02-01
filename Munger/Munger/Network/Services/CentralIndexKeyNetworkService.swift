@@ -1,5 +1,5 @@
 //
-//  MungerNetworkService.swift
+//  CentralIndexKeyNetworkService.swift
 //  Munger
 //
 //  Created by Paul Nguyen on 1/30/25.
@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-class MungerNetworkService {
+class CentralIndexKeyNetworkService {
     private let requestDispatcher: RequestDispatcher
     
     private let baseURL: String = "https://www.sec.gov/files/company_tickers_exchange.json"
@@ -25,8 +25,8 @@ class MungerNetworkService {
         var urlRequest = RequestBuilder.createGetRequest(from: url)
         urlRequest.setValue("Paul Nguyen paulsngyn@gmail.com", forHTTPHeaderField: "User-Agent")
         return requestDispatcher.dispatch(request: urlRequest)
-            .tryMap { data -> TickerResponse in
-                return try JSONDecoder().decode(TickerResponse.self, from: data)
+            .tryMap { data -> CIKResponse in
+                return try JSONDecoder().decode(CIKResponse.self, from: data)
             }
             .map {
                 $0.companies

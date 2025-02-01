@@ -14,10 +14,10 @@ class CompanyListViewModel: ObservableObject {
     
     private var cancellables = Set<AnyCancellable>()
     
-    private let mungerNetworkService: MungerNetworkService
+    private let centralIndexKeyNetworkService: CentralIndexKeyNetworkService
     
-    init(mungerNetworkService: MungerNetworkService = MungerNetworkService()) {
-        self.mungerNetworkService = mungerNetworkService
+    init(centralIndexKeyNetworkService: CentralIndexKeyNetworkService = CentralIndexKeyNetworkService()) {
+        self.centralIndexKeyNetworkService = centralIndexKeyNetworkService
     }
     
     func fetchCompanies() {
@@ -26,7 +26,7 @@ class CompanyListViewModel: ObservableObject {
         }
         isLoading = true
         
-        mungerNetworkService.getCompanyTickers()
+        centralIndexKeyNetworkService.getCompanyTickers()
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 switch completion {

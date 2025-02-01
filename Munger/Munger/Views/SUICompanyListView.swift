@@ -14,7 +14,9 @@ struct SUICompanyListView: View {
         NavigationStack {
             List {
                 ForEach(viewModel.companies, id: \.id) { company in
-                    CompanyCellView(company: company)
+                    NavigationLink(destination: SUICompanyFinancialsView(company: company)) {
+                        CompanyCellView(company: company)
+                    }
                 }
             }
             .navigationTitle("Companies Available")

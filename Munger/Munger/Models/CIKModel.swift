@@ -1,5 +1,5 @@
 //
-//  TickerModel.swift
+//  CIKModel.swift
 //  Munger
 //
 //  Created by Paul Nguyen on 1/30/25.
@@ -28,7 +28,7 @@
      ],
  */
 
-struct TickerResponse: Codable {
+struct CIKResponse: Codable {
     struct CompanyData: Codable {
         init(from decoder: Decoder) throws {
             var container = try decoder.unkeyedContainer()
