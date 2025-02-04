@@ -12,19 +12,47 @@ struct SUICompanyListView: View {
     
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(viewModel.companies, id: \.id) { company in
-                    NavigationLink(destination: SUICompanyFinancialsView(company: company)) {
-                        CompanyCellView(company: company)
-                    }
+            VStack {
+                if viewModel.isLoading {
+                    ProgressView()
+                } else if let error = viewModel.error {
+                    ErrorView(message: error.localizedDescription)
+                } else if viewModel.companies.isEmpty {
+                    EmptyStateView()
+                } else {
+                    CompanyList(companies: viewModel.filteredCompanies)
                 }
             }
             .navigationTitle("Companies Available")
+            .searchable(text: $viewModel.userSearchText, prompt: "Search Companies")
+            .overlay {
+                if viewModel.filteredCompanies.isEmpty && !viewModel.userSearchText.isEmpty {
+                    if #available(iOS 17.0, *) {
+                        ContentUnavailableView.search(text: viewModel.userSearchText)
+                    } else {
+                        EmptySearchView(searchText: viewModel.userSearchText)
+                    }
+                }
+            }
             .onAppear {
                 viewModel.fetchCompanies()
             }
             .refreshable {
                 viewModel.fetchCompanies()
+            }
+        }
+    }
+}
+
+struct CompanyList: View {
+    let companies: [Company]
+    
+    var body: some View {
+        List {
+            ForEach(companies, id: \.id) { company in
+                NavigationLink(destination: SUICompanyFinancialsView(company: company)) {
+                    CompanyCellView(company: company)
+                }
             }
         }
     }
@@ -40,15 +68,72 @@ struct CompanyCellView: View {
                     .font(.headline)
                 Text(company.companyTicker)
                     .font(.subheadline)
+                    .foregroundColor(.secondary)
             }
             Spacer()
-            VStack(alignment: .leading) {
+            VStack(alignment: .trailing) {
                 Text(String(company.cik))
                     .font(.subheadline)
+                    .foregroundColor(.gray)
                 Text(company.companyExchange)
-                    .font(.subheadline)
+                    .font(.footnote)
+                    .foregroundColor(.gray)
             }
         }
+        .padding(.vertical, 4)
+    }
+}
+
+struct EmptyStateView: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "building.2")
+                .font(.system(size: 50))
+                .foregroundColor(.gray)
+            Text("No Companies Available")
+                .font(.headline)
+            Text("Pull to refresh to load companies")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+    }
+}
+
+struct EmptySearchView: View {
+    let searchText: String
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 40))
+                .foregroundColor(.gray)
+            Text("No results for \"\(searchText)\"")
+                .font(.headline)
+            Text("Try searching for a different company or ticker")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding()
+    }
+}
+
+struct ErrorView: View {
+    let message: String
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 40))
+                .foregroundColor(.red)
+            Text("Error")
+                .font(.headline)
+            Text(message)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding()
     }
 }
 

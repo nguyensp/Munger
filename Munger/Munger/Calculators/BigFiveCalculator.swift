@@ -29,27 +29,41 @@ class BigFiveCalculator {
         let operatingIncomeByYear = groupMetricByYear("OperatingIncomeLoss")
         let assetsByYear = groupMetricByYear("Assets")
         let cashByYear = groupMetricByYear("CashAndCashEquivalentsAtCarryingValue")
-        let liabilitiesByYear = groupMetricByYear("LiabilitiesCurrent")
+        let totalLiabilitiesByYear = groupMetricByYear("Liabilities")
+        let longTermInvestmentsByYear = groupMetricByYear("LongTermInvestments")
+        let longTermDebtByYear = groupMetricByYear("LongTermDebtNoncurrent")
         let salesByYear = groupMetricByYear("Revenues")
         let epsByYear = groupMetricByYear("EarningsPerShareBasic")
         let equityByYear = groupMetricByYear("StockholdersEquity")
         let fcfByYear = calculateFCFByYear()
         
+        // Get intersection of all required years for ROIC calculation
         let years = Set(operatingIncomeByYear.keys)
             .intersection(Set(assetsByYear.keys))
+            .intersection(Set(cashByYear.keys))
+            .intersection(Set(totalLiabilitiesByYear.keys))
             .sorted(by: >)
         
         return years.compactMap { year in
             guard let operatingIncome = operatingIncomeByYear[year],
                   let assets = assetsByYear[year],
                   let cash = cashByYear[year],
-                  let liabilities = liabilitiesByYear[year] else {
+                  let totalLiabilities = totalLiabilitiesByYear[year] else {
                 return nil
             }
             
-            let taxRate = 0.21
-            let nopat = operatingIncome * (1 - taxRate)
-            let investedCapital = assets - cash - liabilities
+            // Get optional values
+            let longTermInvestments = longTermInvestmentsByYear[year] ?? 0
+            let longTermDebt = longTermDebtByYear[year] ?? 0
+            
+            // Calculate ROIC
+            let effectiveTaxRate = calculateEffectiveTaxRate(operatingIncome: operatingIncome)
+            let nopat = operatingIncome * (1 - effectiveTaxRate)
+            
+            // Invested Capital = Total Assets - Cash - Total Liabilities + Long Term Debt + Long Term Investments
+            let investedCapital = assets - cash - totalLiabilities + longTermDebt + longTermInvestments
+            
+            // Calculate ROIC as percentage
             let roic = investedCapital != 0 ? (nopat / investedCapital) * 100 : 0
             
             return BigFiveMetrics(
@@ -78,8 +92,31 @@ class BigFiveCalculator {
         let capex = groupMetricByYear("PaymentsToAcquirePropertyPlantAndEquipment")
         
         return operatingCashFlow.merging(capex) { ocf, capexValue in
-            ocf + (capexValue)
+            ocf - capexValue  // Subtract capex from operating cash flow
         }
+    }
+    
+    private func calculateEffectiveTaxRate(operatingIncome: Double) -> Double {
+        // Default corporate tax rate if we can't calculate effective rate
+        let defaultTaxRate = 0.21
+        
+        // Get income tax expense and income before tax
+        let incomeTaxExpense = groupMetricByYear("IncomeTaxExpense")
+            .values
+            .first ?? 0
+        
+        let incomeBeforeTax = groupMetricByYear("IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest")
+            .values
+            .first ?? 0
+        
+        // Calculate effective tax rate or return default
+        if incomeBeforeTax > 0 {
+            let effectiveRate = incomeTaxExpense / incomeBeforeTax
+            // Ensure rate is reasonable (between 0% and 50%)
+            return min(max(effectiveRate, 0), 0.5)
+        }
+        
+        return defaultTaxRate
     }
     
     private func calculateGrowthRate(values: [Int: Double], currentYear: Int) -> Double? {
