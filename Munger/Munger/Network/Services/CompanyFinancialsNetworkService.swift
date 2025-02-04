@@ -11,8 +11,8 @@ import Combine
 class CompanyFinancialsNetworkService {
    private let requestDispatcher: RequestDispatcher
     
-    init(dispatcher: RequestDispatcher = URLSessionCombineDispatcher()) {
-        self.requestDispatcher = dispatcher
+    init(requestDispatcher: RequestDispatcher = ServiceConfig.shared.dispatcher) {
+        self.requestDispatcher = requestDispatcher
     }
     
     func getCompanyFinancials(cik: Int) -> AnyPublisher<CompanyFacts, Error> {

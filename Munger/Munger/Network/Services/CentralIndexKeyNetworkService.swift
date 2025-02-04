@@ -13,7 +13,7 @@ class CentralIndexKeyNetworkService {
     
     private let baseURL: String = "https://www.sec.gov/files/company_tickers_exchange.json"
     
-    init(requestDispatcher: RequestDispatcher = URLSessionCombineDispatcher()) {
+    init(requestDispatcher: RequestDispatcher = ServiceConfig.shared.dispatcher) {
         self.requestDispatcher = requestDispatcher
     }
     
