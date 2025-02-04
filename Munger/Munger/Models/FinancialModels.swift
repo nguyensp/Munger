@@ -40,7 +40,6 @@ import Foundation
 }
 */
 
-// For the top level response
 struct CompanyFacts: Codable {
     let cik: Int
     let entityName: String
@@ -66,4 +65,11 @@ struct DataPoint: Codable {
     let fp: String   // Fiscal Period
     let form: String // 10-K, 10-Q, etc.
     let filed: String
+}
+
+extension Array where Element == Double {
+    func average() -> Double? {
+        guard !isEmpty else { return nil }
+        return reduce(0, +) / Double(count)
+    }
 }
