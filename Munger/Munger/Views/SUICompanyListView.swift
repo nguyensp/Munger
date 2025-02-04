@@ -9,38 +9,50 @@ import SwiftUI
 
 struct SUICompanyListView: View {
     @StateObject var viewModel = CompanyListViewModel()
+    @StateObject var watchListManager = WatchListManager()
     
     var body: some View {
-        NavigationStack {
-            VStack {
-                if viewModel.isLoading {
-                    ProgressView()
-                } else if let error = viewModel.error {
-                    ErrorView(message: error.localizedDescription)
-                } else if viewModel.companies.isEmpty {
-                    EmptyStateView()
-                } else {
-                    CompanyList(companies: viewModel.filteredCompanies)
-                }
-            }
-            .navigationTitle("Companies Available")
-            .searchable(text: $viewModel.userSearchText, prompt: "Search Companies")
-            .overlay {
-                if viewModel.filteredCompanies.isEmpty && !viewModel.userSearchText.isEmpty {
-                    if #available(iOS 17.0, *) {
-                        ContentUnavailableView.search(text: viewModel.userSearchText)
+        TabView {
+            NavigationStack {
+                VStack {
+                    if viewModel.isLoading {
+                        ProgressView()
+                    } else if let error = viewModel.error {
+                        ErrorView(message: error.localizedDescription)
+                    } else if viewModel.companies.isEmpty {
+                        EmptyStateView()
                     } else {
-                        EmptySearchView(searchText: viewModel.userSearchText)
+                        CompanyList(companies: viewModel.filteredCompanies)
                     }
                 }
+                .navigationTitle("Companies Available")
+                .searchable(text: $viewModel.userSearchText, prompt: "Search Companies")
+                .overlay {
+                    if viewModel.filteredCompanies.isEmpty && !viewModel.userSearchText.isEmpty {
+                        if #available(iOS 17.0, *) {
+                            ContentUnavailableView.search(text: viewModel.userSearchText)
+                        } else {
+                            EmptySearchView(searchText: viewModel.userSearchText)
+                        }
+                    }
+                }
+                .onAppear {
+                    viewModel.fetchCompanies()
+                }
+                .refreshable {
+                    viewModel.fetchCompanies()
+                }
             }
-            .onAppear {
-                viewModel.fetchCompanies()
+            .tabItem {
+                Label("Companies", systemImage: "building.2")
             }
-            .refreshable {
-                viewModel.fetchCompanies()
-            }
+            
+            SUIWatchListView(viewModel: WatchListViewModel(watchListManager: watchListManager))
+                .tabItem {
+                    Label("Watch List", systemImage: "star.fill")
+                }
         }
+        .environmentObject(watchListManager)
     }
 }
 
@@ -53,12 +65,17 @@ struct CompanyList: View {
                 NavigationLink(destination: SUICompanyFinancialsView(company: company)) {
                     CompanyCellView(company: company)
                 }
+                .swipeActions(edge: .leading) {
+                    SUIWatchListButton(company: company)
+                        .tint(.yellow)
+                }
             }
         }
     }
 }
 
 struct CompanyCellView: View {
+    @EnvironmentObject var watchListManager: WatchListManager
     var company: Company
     
     var body: some View {
@@ -79,8 +96,26 @@ struct CompanyCellView: View {
                     .font(.footnote)
                     .foregroundColor(.gray)
             }
+            if watchListManager.isWatched(company: company) {
+                Image(systemName: "star.fill")
+                    .foregroundColor(.yellow)
+                    .padding(.leading, 4)
+            }
         }
         .padding(.vertical, 4)
+    }
+}
+
+struct SUIWatchListButton: View {
+    @EnvironmentObject var watchListManager: WatchListManager
+    let company: Company
+    
+    var body: some View {
+        Button {
+            watchListManager.toggleWatch(company: company)
+        } label: {
+            Label("Watch", systemImage: watchListManager.isWatched(company: company) ? "star.slash" : "star")
+        }
     }
 }
 
