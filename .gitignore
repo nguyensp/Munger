@@ -1,3 +1,4 @@
 Config.plist
 *.xcuserstate
 xcuserdata/
+.DS_Store
