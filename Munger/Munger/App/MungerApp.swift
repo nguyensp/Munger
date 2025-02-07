@@ -11,7 +11,7 @@ import SwiftUI
 struct MungerApp: App {
     var body: some Scene {
         WindowGroup {
-            SUICompanyListView()
+            ContentView()
         }
     }
 }

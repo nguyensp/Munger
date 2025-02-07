@@ -8,17 +8,32 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var watchListManager = WatchListManager()
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView {
+            NavigationStack {
+                SUICompanyListView()
+            }
+            .tabItem {
+                Label("Companies", systemImage: "building.2")
+            }
+            
+            NavigationStack {
+                SUIWatchListView(viewModel: WatchListViewModel(watchListManager: watchListManager))
+            }
+            .tabItem {
+                Label("Watch List", systemImage: "star.fill")
+            }
+            
+            NavigationStack {
+                ChatView()
+            }
+            .tabItem {
+                Label("AI Analysis", systemImage: "brain")
+            }
         }
-        .padding()
+        .environmentObject(watchListManager)
     }
 }
 
-#Preview {
-    ContentView()
-}

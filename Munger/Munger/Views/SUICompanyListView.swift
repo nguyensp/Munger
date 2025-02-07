@@ -9,50 +9,37 @@ import SwiftUI
 
 struct SUICompanyListView: View {
     @StateObject var viewModel = CompanyListViewModel()
-    @StateObject var watchListManager = WatchListManager()
+    @EnvironmentObject var watchListManager: WatchListManager
     
     var body: some View {
-        TabView {
-            NavigationStack {
-                VStack {
-                    if viewModel.isLoading {
-                        ProgressView()
-                    } else if let error = viewModel.error {
-                        ErrorView(message: error.localizedDescription)
-                    } else if viewModel.companies.isEmpty {
-                        EmptyStateView()
-                    } else {
-                        CompanyList(companies: viewModel.filteredCompanies)
-                    }
-                }
-                .navigationTitle("Companies Available")
-                .searchable(text: $viewModel.userSearchText, prompt: "Search Companies")
-                .overlay {
-                    if viewModel.filteredCompanies.isEmpty && !viewModel.userSearchText.isEmpty {
-                        if #available(iOS 17.0, *) {
-                            ContentUnavailableView.search(text: viewModel.userSearchText)
-                        } else {
-                            EmptySearchView(searchText: viewModel.userSearchText)
-                        }
-                    }
-                }
-                .onAppear {
-                    viewModel.fetchCompanies()
-                }
-                .refreshable {
-                    viewModel.fetchCompanies()
-                }
+        VStack {
+            if viewModel.isLoading {
+                ProgressView()
+            } else if let error = viewModel.error {
+                ErrorView(message: error.localizedDescription)
+            } else if viewModel.companies.isEmpty {
+                EmptyStateView()
+            } else {
+                CompanyList(companies: viewModel.filteredCompanies)
             }
-            .tabItem {
-                Label("Companies", systemImage: "building.2")
-            }
-            
-            SUIWatchListView(viewModel: WatchListViewModel(watchListManager: watchListManager))
-                .tabItem {
-                    Label("Watch List", systemImage: "star.fill")
-                }
         }
-        .environmentObject(watchListManager)
+        .navigationTitle("Companies Available")
+        .searchable(text: $viewModel.userSearchText, prompt: "Search Companies")
+        .overlay {
+            if viewModel.filteredCompanies.isEmpty && !viewModel.userSearchText.isEmpty {
+                if #available(iOS 17.0, *) {
+                    ContentUnavailableView.search(text: viewModel.userSearchText)
+                } else {
+                    EmptySearchView(searchText: viewModel.userSearchText)
+                }
+            }
+        }
+        .onAppear {
+            viewModel.fetchCompanies()
+        }
+        .refreshable {
+            viewModel.fetchCompanies()
+        }
     }
 }
 
@@ -174,4 +161,5 @@ struct ErrorView: View {
 
 #Preview {
     SUICompanyListView()
+        .environmentObject(WatchListManager())
 }

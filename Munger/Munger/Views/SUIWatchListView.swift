@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SUIWatchListView: View {
-    @StateObject var viewModel: WatchListViewModel
+    @StateObject var viewModel: WatchListViewModel = WatchListViewModel()
     
     var body: some View {
         NavigationStack {
