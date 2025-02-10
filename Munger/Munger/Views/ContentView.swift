@@ -27,7 +27,7 @@ struct ContentView: View {
             }
             
             NavigationStack {
-                ChatView()
+                SUIChatView()
             }
             .tabItem {
                 Label("AI Analysis", systemImage: "brain")

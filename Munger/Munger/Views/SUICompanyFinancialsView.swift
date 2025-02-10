@@ -15,7 +15,7 @@ struct SUICompanyFinancialsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 if !viewModel.bigFiveMetrics.isEmpty {
-                    BigFiveMetricsView(metrics: viewModel.bigFiveMetrics)
+                    SUIBigFiveMetricsView(metrics: viewModel.bigFiveMetrics)
                 }
                 
                 if viewModel.isLoading {

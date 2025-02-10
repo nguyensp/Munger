@@ -1,5 +1,5 @@
 //
-//  ChatView.swift
+//  SUIChatView.swift
 //  Munger
 //
 //  Created by Paul Nguyen on 2/6/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ChatView: View {
+struct SUIChatView: View {
     @StateObject private var viewModel = ChatViewModel()
     @State private var messageText = ""
     @FocusState private var isTextFieldFocused: Bool

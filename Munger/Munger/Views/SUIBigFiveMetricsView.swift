@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct BigFiveMetricsView: View {
+struct SUIBigFiveMetricsView: View {
     let metrics: [BigFiveMetrics]
     
     var body: some View {
