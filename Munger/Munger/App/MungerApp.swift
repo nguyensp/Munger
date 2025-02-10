@@ -15,3 +15,11 @@ struct MungerApp: App {
         }
     }
 }
+
+/**
+ TODO:
+- Swift Charts
+- AI Thesis Generator
+- Code Review
+- Add Unit Tests
+*/

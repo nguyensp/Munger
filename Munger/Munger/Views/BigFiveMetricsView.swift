@@ -4,6 +4,7 @@
 //
 //  Created by Paul Nguyen on 2/4/25.
 //
+
 import SwiftUI
 
 struct BigFiveMetricsView: View {
@@ -15,47 +16,137 @@ struct BigFiveMetricsView: View {
                 .font(.title2)
                 .fontWeight(.bold)
             
+            if let latest = metrics.first {
+                // Future Growth Rate Section
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Estimated Future Growth Rate")
+                        .font(.headline)
+                    
+                    if let fgr = latest.estimatedFutureGrowthRate {
+                        Text(String(format: "%.1f%%", fgr))
+                            .font(.title3)
+                            .foregroundColor(fgr >= 10 ? .green : .red)
+                    } else {
+                        Text("Insufficient historical data")
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
+            }
+            
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(metrics, id: \.year) { yearly in
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(String(yearly.year))
-                                .font(.headline)
-                            
-                            MetricRow(label: "ROIC", value: yearly.roic)
-                            MetricRow(label: "Sales Growth", value: yearly.salesGrowth)
-                            MetricRow(label: "EPS Growth", value: yearly.epsGrowth)
-                            MetricRow(label: "Equity Growth", value: yearly.equityGrowth)
-                            MetricRow(label: "FCF Growth", value: yearly.fcfGrowth)
-                        }
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(8)
-                        .frame(width: 200)
+                        YearlyMetricsCard(metrics: yearly)
                     }
                 }
             }
             
-            if metrics.count >= 2 {
+            if let latest = metrics.first {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Average Growth Rates")
+                    Text("Historical Growth Rates")
                         .font(.headline)
                     
-                    let roicAvg = metrics.map(\.roic).average()
-                    let salesAvg = metrics.compactMap(\.salesGrowth).average()
-                    let epsAvg = metrics.compactMap(\.epsGrowth).average()
-                    let equityAvg = metrics.compactMap(\.equityGrowth).average()
-                    let fcfAvg = metrics.compactMap(\.fcfGrowth).average()
-                    
                     Group {
-                        MetricRow(label: "ROIC", value: roicAvg)
-                        MetricRow(label: "Sales Growth", value: salesAvg)
-                        MetricRow(label: "EPS Growth", value: epsAvg)
-                        MetricRow(label: "Equity Growth", value: equityAvg)
-                        MetricRow(label: "FCF Growth", value: fcfAvg)
+                        HistoricalMetricSection(label: "Sales Growth", rates: latest.salesGrowth)
+                        HistoricalMetricSection(label: "EPS Growth", rates: latest.epsGrowth)
+                        HistoricalMetricSection(label: "Equity Growth", rates: latest.equityGrowth)
+                        HistoricalMetricSection(label: "FCF Growth", rates: latest.fcfGrowth)
                     }
                 }
-                .padding(.top)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
+            }
+        }
+    }
+}
+
+struct YearlyMetricsCard: View {
+    let metrics: BigFiveMetrics
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(String(metrics.year))
+                .font(.headline)
+            
+            MetricRow(label: "ROIC", value: metrics.roic)
+            
+            if let salesGrowth = metrics.salesGrowth?.average {
+                MetricRow(label: "Sales Growth", value: salesGrowth)
+            }
+            if let epsGrowth = metrics.epsGrowth?.average {
+                MetricRow(label: "EPS Growth", value: epsGrowth)
+            }
+            if let equityGrowth = metrics.equityGrowth?.average {
+                MetricRow(label: "Equity Growth", value: equityGrowth)
+            }
+            if let fcfGrowth = metrics.fcfGrowth?.average {
+                MetricRow(label: "FCF Growth", value: fcfGrowth)
+            }
+        }
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(8)
+        .frame(width: 200)
+    }
+}
+
+struct HistoricalMetricSection: View {
+    let label: String
+    let rates: HistoricalGrowthRates?
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .font(.subheadline)
+                .fontWeight(.medium)
+            
+            if let rates = rates {
+                HStack(spacing: 16) {
+                    PeriodGrowthLabel("10Y", value: rates.tenYear)
+                    PeriodGrowthLabel("7Y", value: rates.sevenYear)
+                    PeriodGrowthLabel("5Y", value: rates.fiveYear)
+                    PeriodGrowthLabel("3Y", value: rates.threeYear)
+                }
+                
+                if let avg = rates.average {
+                    MetricRow(label: "Average", value: avg)
+                }
+            } else {
+                Text("Insufficient historical data")
+                    .foregroundColor(.secondary)
+            }
+            
+            Divider()
+        }
+    }
+}
+
+struct PeriodGrowthLabel: View {
+    let period: String
+    let value: Double?
+    
+    init(_ period: String, value: Double?) {
+        self.period = period
+        self.value = value
+    }
+    
+    var body: some View {
+        VStack(spacing: 2) {
+            Text(period)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            if let value = value {
+                Text(String(format: "%.1f%%", value))
+                    .font(.subheadline)
+                    .foregroundColor(value >= 10 ? .green : .red)
+            } else {
+                Text("N/A")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
             }
         }
     }

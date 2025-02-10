@@ -7,15 +7,41 @@
 
 import Foundation
 
+struct HistoricalGrowthRates {
+    let tenYear: Double?
+    let sevenYear: Double?
+    let fiveYear: Double?
+    let threeYear: Double?
+    
+    var average: Double? {
+        let rates = [tenYear, sevenYear, fiveYear, threeYear].compactMap { $0 }
+        return rates.isEmpty ? nil : rates.reduce(0, +) / Double(rates.count)
+    }
+}
+
 struct BigFiveMetrics: Identifiable {
     let year: Int
     let roic: Double
-    let salesGrowth: Double?
-    let epsGrowth: Double?
-    let equityGrowth: Double?
-    let fcfGrowth: Double?
+    let salesGrowth: HistoricalGrowthRates?
+    let epsGrowth: HistoricalGrowthRates?
+    let equityGrowth: HistoricalGrowthRates?
+    let fcfGrowth: HistoricalGrowthRates?
     
     var id: Int { year }
+    
+    var estimatedFutureGrowthRate: Double? {
+        let averages = [
+            salesGrowth?.average,
+            epsGrowth?.average,
+            equityGrowth?.average,
+            fcfGrowth?.average
+        ].compactMap { $0 }
+        
+        guard !averages.isEmpty else { return nil }
+        let overallAverage = averages.reduce(0, +) / Double(averages.count)
+        
+        return overallAverage
+    }
 }
 
 class BigFiveCalculator {
@@ -59,24 +85,45 @@ class BigFiveCalculator {
             // Calculate ROIC
             let effectiveTaxRate = calculateEffectiveTaxRate(operatingIncome: operatingIncome)
             let nopat = operatingIncome * (1 - effectiveTaxRate)
-            
-            // Invested Capital = Total Assets - Cash - Total Liabilities + Long Term Debt + Long Term Investments
             let investedCapital = assets - cash - totalLiabilities + longTermDebt + longTermInvestments
-            
-            // Calculate ROIC as percentage
             let roic = investedCapital != 0 ? (nopat / investedCapital) * 100 : 0
             
             return BigFiveMetrics(
                 year: year,
                 roic: roic,
-                salesGrowth: calculateGrowthRate(values: salesByYear, currentYear: year),
-                epsGrowth: calculateGrowthRate(values: epsByYear, currentYear: year),
-                equityGrowth: calculateGrowthRate(values: equityByYear, currentYear: year),
-                fcfGrowth: calculateGrowthRate(values: fcfByYear, currentYear: year)
+                salesGrowth: calculateHistoricalRates(values: salesByYear, currentYear: year),
+                epsGrowth: calculateHistoricalRates(values: epsByYear, currentYear: year),
+                equityGrowth: calculateHistoricalRates(values: equityByYear, currentYear: year),
+                fcfGrowth: calculateHistoricalRates(values: fcfByYear, currentYear: year)
             )
         }
     }
     
+    private func calculateHistoricalRates(values: [Int: Double], currentYear: Int) -> HistoricalGrowthRates? {
+        // Check if we have enough historical data
+        guard values.keys.contains(currentYear - 10) else { return nil }
+        
+        return HistoricalGrowthRates(
+            tenYear: calculateCAGR(values: values, fromYear: currentYear - 10, toYear: currentYear),
+            sevenYear: calculateCAGR(values: values, fromYear: currentYear - 7, toYear: currentYear),
+            fiveYear: calculateCAGR(values: values, fromYear: currentYear - 5, toYear: currentYear),
+            threeYear: calculateCAGR(values: values, fromYear: currentYear - 3, toYear: currentYear)
+        )
+    }
+    
+    private func calculateCAGR(values: [Int: Double], fromYear: Int, toYear: Int) -> Double? {
+        guard let startValue = values[fromYear],
+              let endValue = values[toYear],
+              startValue != 0,
+              fromYear != toYear else {
+            return nil
+        }
+        
+        let years = Double(toYear - fromYear)
+        return (pow(endValue / startValue, 1.0 / years) - 1.0) * 100
+    }
+    
+    // Existing helper methods remain the same
     private func groupMetricByYear(_ metric: String) -> [Int: Double] {
         let dataPoints = facts.facts.usGaap[metric]?.units["USD"] ?? []
         return Dictionary(
@@ -92,15 +139,13 @@ class BigFiveCalculator {
         let capex = groupMetricByYear("PaymentsToAcquirePropertyPlantAndEquipment")
         
         return operatingCashFlow.merging(capex) { ocf, capexValue in
-            ocf - capexValue  // Subtract capex from operating cash flow
+            ocf - capexValue
         }
     }
     
     private func calculateEffectiveTaxRate(operatingIncome: Double) -> Double {
-        // Default corporate tax rate if we can't calculate effective rate
         let defaultTaxRate = 0.21
         
-        // Get income tax expense and income before tax
         let incomeTaxExpense = groupMetricByYear("IncomeTaxExpense")
             .values
             .first ?? 0
@@ -109,22 +154,11 @@ class BigFiveCalculator {
             .values
             .first ?? 0
         
-        // Calculate effective tax rate or return default
         if incomeBeforeTax > 0 {
             let effectiveRate = incomeTaxExpense / incomeBeforeTax
-            // Ensure rate is reasonable (between 0% and 50%)
             return min(max(effectiveRate, 0), 0.5)
         }
         
         return defaultTaxRate
-    }
-    
-    private func calculateGrowthRate(values: [Int: Double], currentYear: Int) -> Double? {
-        guard let currentValue = values[currentYear],
-              let previousValue = values[currentYear - 1],
-              previousValue != 0 else {
-            return nil
-        }
-        return ((currentValue - previousValue) / abs(previousValue)) * 100
     }
 }
