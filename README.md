@@ -15,3 +15,6 @@ There will probably also be mobile portal for clients who'd like to work with me
 Anyway, cheers to AI which is force multiplier on software engineering learning and productive output.
 
 - Paul Nguyen, 02/05/25
+
+So far, 02/07/25:
+![020725MungerAI](https://github.com/user-attachments/assets/3d3fe978-451f-49cd-b004-fe5b67128b99)
