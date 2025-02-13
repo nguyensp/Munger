@@ -6,8 +6,9 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
-struct SignUpView: View {
+struct SUISignUpView: View {
     @EnvironmentObject var authViewModel: AuthenticationViewModel
     @Environment(\.dismiss) var dismiss
     
@@ -74,4 +75,9 @@ struct SignUpView: View {
             }
         }
     }
+}
+
+#Preview {
+    SUISignUpView()
+        .environmentObject(AuthenticationViewModel())
 }

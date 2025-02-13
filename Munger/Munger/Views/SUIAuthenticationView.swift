@@ -6,44 +6,64 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 struct SUIAuthenticationView: View {
     @EnvironmentObject var authViewModel: AuthenticationViewModel
     @State private var email = ""
     @State private var password = ""
+    @State private var showingSignUp = false
     
     var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "building.2")
-                .font(.system(size: 60))
-                .foregroundColor(.blue)
-            
-            Text("Welcome to Munger")
-                .font(.title)
-                .fontWeight(.bold)
-            
-            TextField("Email", text: $email)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .textInputAutocapitalization(.never)
-                .keyboardType(.emailAddress)
-                .autocorrectionDisabled()
-            
-            SecureField("Password", text: $password)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-            
-            Button("Sign In") {
-                authViewModel.signIn(email: email, password: password)
+        NavigationView {
+            VStack(spacing: 20) {
+                Image(systemName: "building.2")
+                    .font(.system(size: 60))
+                    .foregroundColor(.blue)
+                
+                Text("Welcome to Munger")
+                    .font(.title)
+                    .fontWeight(.bold)
+                
+                VStack(spacing: 15) {
+                    TextField("Email", text: $email)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .textInputAutocapitalization(.never)
+                        .keyboardType(.emailAddress)
+                        .autocorrectionDisabled()
+                    
+                    SecureField("Password", text: $password)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                }
+                .padding(.horizontal)
+                
+                Button("Sign In") {
+                    authViewModel.signIn(email: email, password: password)
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(email.isEmpty || password.isEmpty)
+                
+                Button("Create Account") {
+                    showingSignUp = true
+                }
+                .sheet(isPresented: $showingSignUp) {
+                    SUISignUpView()
+                }
+                
+                if let error = authViewModel.error {
+                    Text(error.localizedDescription)
+                        .foregroundColor(.red)
+                        .font(.caption)
+                        .multilineTextAlignment(.center)
+                }
             }
-            .buttonStyle(.borderedProminent)
-            .disabled(email.isEmpty || password.isEmpty)
-            
-            if let error = authViewModel.error {
-                Text(error.localizedDescription)
-                    .foregroundColor(.red)
-                    .font(.caption)
-            }
+            .padding()
+            .navigationBarHidden(true)
         }
-        
-        .padding()
     }
+}
+
+#Preview {
+    SUIAuthenticationView()
+        .environmentObject(AuthenticationViewModel())
 }
