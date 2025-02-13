@@ -9,11 +9,21 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var watchListManager = WatchListManager()
+    @EnvironmentObject var authManager: AuthenticationManager
     
     var body: some View {
         TabView {
             NavigationStack {
                 SUICompanyListView()
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button(action: {
+                                authManager.signOut()
+                            }) {
+                                Image(systemName: "rectangle.portrait.and.arrow.right")
+                            }
+                        }
+                    }
             }
             .tabItem {
                 Label("Companies", systemImage: "building.2")
@@ -36,4 +46,3 @@ struct ContentView: View {
         .environmentObject(watchListManager)
     }
 }
-
