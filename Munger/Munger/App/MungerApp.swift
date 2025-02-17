@@ -5,7 +5,6 @@
 //  Created by Paul Nguyen on 1/30/25.
 //
 
-// App/MungerApp.swift
 import SwiftUI
 import FirebaseCore
 

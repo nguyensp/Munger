@@ -11,6 +11,7 @@ import Combine
 
 @MainActor
 class AuthenticationViewModel: ObservableObject {
+    @Published var user: User?
     @Published var isAuthenticated = false
     @Published var error: Error?
     
@@ -18,16 +19,42 @@ class AuthenticationViewModel: ObservableObject {
     
     init(authService: AuthenticationService = AuthenticationService()) {
         self.authService = authService
-        self.isAuthenticated = authService.getCurrentUser() != nil
+        self.user = authService.getCurrentUser()
+        self.isAuthenticated = user != nil
+        setupAuthStateListener()
+    }
+    
+    private func setupAuthStateListener() {
+        authService.setupAuthStateListener { [weak self] user in
+            Task { @MainActor in
+                self?.user = user
+                self?.isAuthenticated = user != nil
+            }
+        }
     }
     
     func signIn(email: String, password: String) {
         Task {
             do {
-                _ = try await authService.signIn(email: email, password: password)
-                self.isAuthenticated = true
+                user = try await authService.signIn(email: email, password: password)
+                isAuthenticated = true
+                error = nil
             } catch {
                 self.error = error
+                isAuthenticated = false
+            }
+        }
+    }
+    
+    func signUp(email: String, password: String) {
+        Task {
+            do {
+                user = try await authService.signUp(email: email, password: password)
+                isAuthenticated = true
+                error = nil
+            } catch {
+                self.error = error
+                isAuthenticated = false
             }
         }
     }
@@ -35,17 +62,19 @@ class AuthenticationViewModel: ObservableObject {
     func signOut() {
         do {
             try authService.signOut()
-            self.isAuthenticated = false
+            user = nil
+            isAuthenticated = false
+            error = nil
         } catch {
             self.error = error
         }
     }
     
-    func signUp(email: String, password: String) {
+    func resetPassword(email: String) {
         Task {
             do {
-                _ = try await authService.signUp(email: email, password: password)
-                self.isAuthenticated = true
+                try await authService.sendPasswordReset(email: email)
+                // You might want to show a success message
             } catch {
                 self.error = error
             }

@@ -6,9 +6,13 @@
 //
 
 import FirebaseAuth
-import Combine
+import Foundation
 
 class AuthenticationService {
+    func getCurrentUser() -> User? {
+        return Auth.auth().currentUser
+    }
+    
     func signIn(email: String, password: String) async throws -> User {
         let result = try await Auth.auth().signIn(withEmail: email, password: password)
         return result.user
@@ -23,7 +27,13 @@ class AuthenticationService {
         try Auth.auth().signOut()
     }
     
-    func getCurrentUser() -> User? {
-        return Auth.auth().currentUser
+    func setupAuthStateListener(completion: @escaping (User?) -> Void) {
+        Auth.auth().addStateDidChangeListener { _, user in
+            completion(user)
+        }
+    }
+    
+    func sendPasswordReset(email: String) async throws {
+        try await Auth.auth().sendPasswordReset(withEmail: email)
     }
 }

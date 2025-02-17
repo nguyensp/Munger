@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var watchListManager = WatchListManager()
-    @EnvironmentObject var authManager: AuthenticationManager
+    @EnvironmentObject var authViewModel: AuthenticationViewModel
     
     var body: some View {
         TabView {
@@ -18,7 +18,7 @@ struct ContentView: View {
                     .toolbar {
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button(action: {
-                                authManager.signOut()
+                                authViewModel.signOut()
                             }) {
                                 Image(systemName: "rectangle.portrait.and.arrow.right")
                             }

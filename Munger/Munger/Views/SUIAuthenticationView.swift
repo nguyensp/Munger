@@ -13,6 +13,7 @@ struct SUIAuthenticationView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var showingSignUp = false
+    @State private var showingPasswordReset = false
     
     var body: some View {
         NavigationView {
@@ -55,6 +56,12 @@ struct SUIAuthenticationView: View {
                         .foregroundColor(.red)
                         .font(.caption)
                         .multilineTextAlignment(.center)
+                }
+                Button("Forgot Password?") {
+                    showingPasswordReset = true
+                }
+                .sheet(isPresented: $showingPasswordReset) {
+                    SUIPasswordResetView()
                 }
             }
             .padding()
