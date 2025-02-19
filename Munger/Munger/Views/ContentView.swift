@@ -8,41 +8,35 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var watchListManager = WatchListManager()
-    @EnvironmentObject var authViewModel: AuthenticationViewModel
+    private let coordinator: AppCoordinator
+    
+    init(coordinator: AppCoordinator) {
+        self.coordinator = coordinator
+    }
     
     var body: some View {
         TabView {
             NavigationStack {
-                SUICompanyListView()
+                SUICompanyListView(coordinator: coordinator)
                     .toolbar {
                         ToolbarItem(placement: .navigationBarTrailing) {
-                            Button(action: {
-                                authViewModel.signOut()
-                            }) {
+                            Button(action: { coordinator.authViewModel.signOut() }) {
                                 Image(systemName: "rectangle.portrait.and.arrow.right")
                             }
                         }
                     }
             }
-            .tabItem {
-                Label("Companies", systemImage: "building.2")
-            }
+            .tabItem { Label("Companies", systemImage: "building.2") }
             
             NavigationStack {
-                SUIWatchListView(viewModel: WatchListViewModel(watchListManager: watchListManager))
+                SUIWatchListView(viewModel: coordinator.watchListViewModel)
             }
-            .tabItem {
-                Label("Watch List", systemImage: "star.fill")
-            }
+            .tabItem { Label("Watch List", systemImage: "star.fill") }
             
             NavigationStack {
-                SUIChatView()
+                SUIChatView(viewModel: coordinator.chatViewModel)
             }
-            .tabItem {
-                Label("AI Analysis", systemImage: "brain")
-            }
+            .tabItem { Label("AI Analysis", systemImage: "brain") }
         }
-        .environmentObject(watchListManager)
     }
 }

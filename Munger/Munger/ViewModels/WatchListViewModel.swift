@@ -30,7 +30,7 @@ class WatchListViewModel: ObservableObject {
     }
     
     init(watchListManager: WatchListManager = WatchListManager(),
-         networkService: CentralIndexKeyNetworkService = ServiceFactory.sharedInstance.makeCentralIndexKeyNetworkService()) {
+         networkService: CentralIndexKeyNetworkService) {
         self.watchListManager = watchListManager
         self.networkService = networkService
     }

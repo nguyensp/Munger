@@ -17,10 +17,11 @@ class AuthenticationViewModel: ObservableObject {
     
     private let authService: AuthenticationService
     
-    init(authService: AuthenticationService = ServiceFactory.sharedInstance.makeAuthenticationService()) {
+    init(authService: AuthenticationService) {
         self.authService = authService
         self.user = authService.getCurrentUser()
         self.isAuthenticated = user != nil
+        print("🛠️ AuthViewModel initialized, user: \(user?.email ?? "nil"), isAuthenticated: \(isAuthenticated)")
         setupAuthStateListener()
     }
     
@@ -29,19 +30,22 @@ class AuthenticationViewModel: ObservableObject {
             Task { @MainActor in
                 self?.user = user
                 self?.isAuthenticated = user != nil
+                print("🔄 Auth state changed, user: \(user?.email ?? "nil"), isAuthenticated: \(self?.isAuthenticated ?? false)")
             }
         }
     }
     
     func signIn(email: String, password: String) {
-        Task {
+        Task { @MainActor in
             do {
                 user = try await authService.signIn(email: email, password: password)
                 isAuthenticated = true
                 error = nil
+                print("✅ Sign-in successful, user: \(user?.email ?? "nil"), isAuthenticated: \(isAuthenticated)")
             } catch {
                 self.error = error
                 isAuthenticated = false
+                print("❌ Sign-in failed, error: \(error.localizedDescription)")
             }
         }
     }

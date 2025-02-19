@@ -5,15 +5,20 @@
 //  Created by Paul Nguyen on 2/18/25.
 //
 
-import Foundation
+protocol ServiceFactoryProtocol {
+    func makeCentralIndexKeyNetworkService() -> CentralIndexKeyNetworkService
+    func makeCompanyFinancialsNetworkService() -> CompanyFinancialsNetworkService
+    func makeAIChatService(provider: AIProvider) -> AIChatService
+    func makeAuthenticationService() -> AuthenticationService
+    @MainActor func makeAuthenticationViewModel() -> AuthenticationViewModel
+    func makeWatchListManager() -> WatchListManager
+}
 
-public class ServiceFactory {
-    public static let sharedInstance = ServiceFactory()
-    
+class ServiceFactory: ServiceFactoryProtocol {
     private let requestDispatcher: RequestDispatcher
     private let authenticationService: AuthenticationService
     
-    private init() {
+    init() {
         let cache = CoreDataCache(modelName: "Cache")
         self.requestDispatcher = CachingDispatcher(
             networkDispatcher: URLSessionCombineDispatcher(),
@@ -22,19 +27,28 @@ public class ServiceFactory {
         self.authenticationService = AuthenticationService()
     }
     
-    public func makeCentralIndexKeyNetworkService() -> CentralIndexKeyNetworkService {
-        return CentralIndexKeyNetworkService(requestDispatcher: requestDispatcher)
+    func makeCentralIndexKeyNetworkService() -> CentralIndexKeyNetworkService {
+        CentralIndexKeyNetworkService(requestDispatcher: requestDispatcher)
     }
     
-    public func makeCompanyFinancialsNetworkService() -> CompanyFinancialsNetworkService {
-        return CompanyFinancialsNetworkService(requestDispatcher: requestDispatcher)
+    func makeCompanyFinancialsNetworkService() -> CompanyFinancialsNetworkService {
+        CompanyFinancialsNetworkService(requestDispatcher: requestDispatcher)
     }
     
-    public func makeAIChatService(provider: AIProvider = .openai) -> AIChatService {
-        return AIChatService(requestDispatcher: requestDispatcher, provider: provider)
+    func makeAIChatService(provider: AIProvider = .openai) -> AIChatService {
+        AIChatService(requestDispatcher: requestDispatcher, provider: provider)
     }
     
-    public func makeAuthenticationService() -> AuthenticationService {
-        return authenticationService
+    func makeAuthenticationService() -> AuthenticationService {
+        authenticationService
+    }
+    
+    @MainActor
+    func makeAuthenticationViewModel() -> AuthenticationViewModel {
+        AuthenticationViewModel(authService: authenticationService)
+    }
+    
+    func makeWatchListManager() -> WatchListManager {
+        WatchListManager()
     }
 }

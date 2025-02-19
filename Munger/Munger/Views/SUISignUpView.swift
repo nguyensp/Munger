@@ -78,6 +78,8 @@ struct SUISignUpView: View {
 }
 
 #Preview {
+    let factory = ServiceFactory()
+    let coordinator = AppCoordinator(serviceFactory: factory)
     SUISignUpView()
-        .environmentObject(AuthenticationViewModel())
+        .environmentObject(coordinator.authViewModel)
 }

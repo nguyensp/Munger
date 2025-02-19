@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct SUIWatchListView: View {
-    @StateObject var viewModel: WatchListViewModel = WatchListViewModel()
+    @ObservedObject var viewModel: WatchListViewModel
+    @EnvironmentObject var watchListManager: WatchListManager
     
     var body: some View {
         NavigationStack {
@@ -18,7 +19,7 @@ struct SUIWatchListView: View {
                 } else if viewModel.watchedCompanies.isEmpty {
                     EmptyWatchListView()
                 } else {
-                    WatchList(companies: viewModel.filteredCompanies, onRemove: viewModel.removeFromWatchList)
+                    WatchList(companies: viewModel.filteredCompanies, onRemove: viewModel.removeFromWatchList, serviceFactory: ServiceFactory())
                 }
             }
             .navigationTitle("Watch List")
@@ -42,11 +43,12 @@ struct SUIWatchListView: View {
 private struct WatchList: View {
     let companies: [Company]
     let onRemove: (Company) -> Void
+    let serviceFactory: ServiceFactoryProtocol
     
     var body: some View {
         List {
             ForEach(companies, id: \.id) { company in
-                NavigationLink(destination: SUICompanyFinancialsView(company: company)) {
+                NavigationLink(destination: SUICompanyFinancialsView(company: company, serviceFactory: serviceFactory)) {
                     CompanyCellView(company: company)
                 }
                 .swipeActions {
@@ -79,6 +81,8 @@ private struct EmptyWatchListView: View {
 }
 
 #Preview {
-    SUIWatchListView(viewModel: WatchListViewModel())
-        .environmentObject(WatchListManager())
+    let factory = ServiceFactory()
+    let coordinator = AppCoordinator(serviceFactory: factory)
+    SUIWatchListView(viewModel: coordinator.watchListViewModel)
+        .environmentObject(coordinator.watchListManager)
 }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SUIChatView: View {
-    @StateObject private var viewModel = ChatViewModel()
+    @ObservedObject var viewModel: ChatViewModel // Passed from coordinator
     @State private var messageText = ""
     @FocusState private var isTextFieldFocused: Bool
     
@@ -93,10 +93,7 @@ struct SUIChatView: View {
         guard !messageText.isEmpty else { return }
         let message = messageText
         messageText = ""
-        
-        // Dismiss keyboard on send
         isTextFieldFocused = false
-        
         viewModel.sendMessage(message)
     }
 }
@@ -108,7 +105,6 @@ struct MessageBubble: View {
     var body: some View {
         HStack {
             if isUser { Spacer(minLength: 24) }
-            
             Text(message)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
@@ -116,9 +112,14 @@ struct MessageBubble: View {
                 .foregroundColor(isUser ? .white : .primary)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 .textSelection(.enabled)
-            
             if !isUser { Spacer(minLength: 24) }
         }
-        .id(UUID()) // Force unique layout for each message
+        .id(UUID())
     }
+}
+
+#Preview {
+    let factory = ServiceFactory()
+    let coordinator = AppCoordinator(serviceFactory: factory)
+    SUIChatView(viewModel: coordinator.chatViewModel)
 }

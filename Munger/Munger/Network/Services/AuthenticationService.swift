@@ -14,8 +14,14 @@ public final class AuthenticationService {
     }
     
     func signIn(email: String, password: String) async throws -> User {
-        let result = try await Auth.auth().signIn(withEmail: email, password: password)
-        return result.user
+        do {
+            let result = try await Auth.auth().signIn(withEmail: email, password: password)
+            print("🔥 Firebase sign-in succeeded: \(result.user.email ?? "no email")")
+            return result.user
+        } catch {
+            print("🔥 Firebase sign-in failed: \(error.localizedDescription)")
+            throw error
+        }
     }
     
     func signUp(email: String, password: String) async throws -> User {

@@ -41,6 +41,7 @@ struct SUIAuthenticationView: View {
                 .padding(.horizontal)
                 
                 Button("Sign In") {
+                    print("🔍 Sign-in attempt with email: \(email)")
                     authViewModel.signIn(email: email, password: password)
                 }
                 .buttonStyle(.borderedProminent)
@@ -73,6 +74,8 @@ struct SUIAuthenticationView: View {
 }
 
 #Preview {
+    let factory = ServiceFactory()
+    let coordinator = AppCoordinator(serviceFactory: factory)
     SUIAuthenticationView()
-        .environmentObject(AuthenticationViewModel())
+        .environmentObject(coordinator.authViewModel)
 }

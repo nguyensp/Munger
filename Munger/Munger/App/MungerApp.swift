@@ -10,26 +10,22 @@ import FirebaseCore
 
 @main
 struct MungerApp: App {
-    @StateObject private var authViewModel = AuthenticationViewModel()
+    private let serviceFactory: ServiceFactoryProtocol = ServiceFactory()
     
     init() {
-        FirebaseApp.configure()
-        ServiceFactory.sharedInstance
+        do {
+            try FirebaseApp.configure()
+        } catch {
+            print("Firebase config failed: \(error)")
+        }
     }
     
     var body: some Scene {
         WindowGroup {
-            if authViewModel.isAuthenticated {
-                ContentView()
-                    .environmentObject(authViewModel)
-            } else {
-                SUIAuthenticationView()
-                    .environmentObject(authViewModel)
-            }
+            SUIRootView(serviceFactory: serviceFactory)
         }
     }
 }
-
 /**
  TODO:
 - Swift Charts

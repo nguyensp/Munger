@@ -6,10 +6,18 @@
 //
 
 import SwiftUI
+import Combine
 
 struct SUICompanyFinancialsView: View {
-    @StateObject var viewModel = CompanyFinancialsViewModel()
+    @StateObject private var viewModel: CompanyFinancialsViewModel
     let company: Company
+    
+    init(company: Company, serviceFactory: ServiceFactoryProtocol) {
+        self.company = company
+        _viewModel = StateObject(wrappedValue: CompanyFinancialsViewModel(
+            companyFinancialsNetworkService: serviceFactory.makeCompanyFinancialsNetworkService()
+        ))
+    }
     
     var body: some View {
         ScrollView {
