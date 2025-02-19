@@ -18,11 +18,13 @@ struct SUIAuthenticationView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-                Image(systemName: "building.2")
-                    .font(.system(size: 60))
-                    .foregroundColor(.blue)
+                Image("RembrandtPugIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 350, height: 350)
+                    .clipShape(Circle())
                 
-                Text("Welcome to Munger")
+                Text("MUNGER.AI")
                     .font(.title)
                     .fontWeight(.bold)
                 
