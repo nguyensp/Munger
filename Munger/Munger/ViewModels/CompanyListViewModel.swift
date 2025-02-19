@@ -29,7 +29,7 @@ class CompanyListViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private let centralIndexKeyNetworkService: CentralIndexKeyNetworkService
     
-    init(centralIndexKeyNetworkService: CentralIndexKeyNetworkService = CentralIndexKeyNetworkService()) {
+    init(centralIndexKeyNetworkService: CentralIndexKeyNetworkService = ServiceFactory.sharedInstance.makeCentralIndexKeyNetworkService()) {
         self.centralIndexKeyNetworkService = centralIndexKeyNetworkService
     }
     

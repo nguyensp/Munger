@@ -20,9 +20,29 @@ class CachingDispatcher: RequestDispatcher {
         self.cache = cache
     }
     
+    private func shouldCache(_ request: URLRequest) -> Bool {
+        guard let url = request.url?.absoluteString else { return false }
+        
+        if url.contains("company_tickers_exchange.json") {
+            print("📝 Caching enabled for company list")
+            return true  // Cache company list - rarely changes
+        }
+        if url.contains("companyfacts/CIK") {
+            print("📝 Caching disabled for financial data")
+            return false // Don't cache financial data - needs to be fresh
+        }
+        print("📝 Default: no caching")
+        return false
+    }
+    
     func dispatch(request: URLRequest) -> AnyPublisher<Data, Error> {
         let cacheKey = request.url?.absoluteString ?? ""
         print("🔍 Attempting to dispatch: \(cacheKey)")
+        
+        if !shouldCache(request) {
+            print("⚡️ Bypassing cache, direct network request")
+            return networkDispatcher.dispatch(request: request)
+        }
         
         return Future<Data, Error> { [weak self] promise in
             guard let self = self else { return }

@@ -16,7 +16,7 @@ class ChatViewModel: ObservableObject {
     private let chatService: AIChatService
     private var cancellables = Set<AnyCancellable>()
     
-    init(chatService: AIChatService = AIChatService()) {
+    init(chatService: AIChatService = ServiceFactory.sharedInstance.makeAIChatService()) {
         self.chatService = chatService
     }
     

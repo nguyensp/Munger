@@ -8,12 +8,12 @@
 import Foundation
 import Combine
 
-class CentralIndexKeyNetworkService {
+public final class CentralIndexKeyNetworkService {
     private let requestDispatcher: RequestDispatcher
     
     private let baseURL: String = "https://www.sec.gov/files/company_tickers_exchange.json"
     
-    init(requestDispatcher: RequestDispatcher = ServiceConfig.shared.dispatcher) {
+    init(requestDispatcher: RequestDispatcher) {
         self.requestDispatcher = requestDispatcher
     }
     

@@ -14,6 +14,7 @@ struct MungerApp: App {
     
     init() {
         FirebaseApp.configure()
+        ServiceFactory.sharedInstance
     }
     
     var body: some Scene {

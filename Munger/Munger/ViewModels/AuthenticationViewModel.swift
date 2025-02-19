@@ -17,7 +17,7 @@ class AuthenticationViewModel: ObservableObject {
     
     private let authService: AuthenticationService
     
-    init(authService: AuthenticationService = AuthenticationService()) {
+    init(authService: AuthenticationService = ServiceFactory.sharedInstance.makeAuthenticationService()) {
         self.authService = authService
         self.user = authService.getCurrentUser()
         self.isAuthenticated = user != nil

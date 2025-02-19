@@ -8,10 +8,10 @@
 import Foundation
 import Combine
 
-class CompanyFinancialsNetworkService {
+public final class CompanyFinancialsNetworkService {
    private let requestDispatcher: RequestDispatcher
     
-    init(requestDispatcher: RequestDispatcher = ServiceConfig.shared.dispatcher) {
+    init(requestDispatcher: RequestDispatcher) {
         self.requestDispatcher = requestDispatcher
     }
     

@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-enum AIProvider {
+public enum AIProvider {
     case openai
     case deepseek
     
@@ -56,13 +56,13 @@ struct ChatResponse: Codable {
     }
 }
 
-class AIChatService {
+public final class AIChatService {
     private let requestDispatcher: RequestDispatcher
     private var provider: AIProvider
     private var messages: [Message] = []
     
     init(
-        requestDispatcher: RequestDispatcher = URLSessionCombineDispatcher(),
+        requestDispatcher: RequestDispatcher,
         provider: AIProvider = .openai
     ) {
         self.requestDispatcher = requestDispatcher

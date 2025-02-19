@@ -17,7 +17,7 @@ class CompanyFinancialsViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private let companyFinancialsNetworkService: CompanyFinancialsNetworkService
     
-    init(companyFinancialsNetworkService: CompanyFinancialsNetworkService = CompanyFinancialsNetworkService()) {
+    init(companyFinancialsNetworkService: CompanyFinancialsNetworkService = ServiceFactory.sharedInstance.makeCompanyFinancialsNetworkService()) {
         self.companyFinancialsNetworkService = companyFinancialsNetworkService
     }
     
