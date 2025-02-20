@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		E19186D62D5EB22D000E622E /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = E19186D52D5EB22D000E622E /* FirebaseAuth */; };
 		E19186D82D5EB22D000E622E /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = E19186D72D5EB22D000E622E /* FirebaseCore */; };
+		E1B668D92D66B41A007D2FFF /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = E1B668D82D66B41A007D2FFF /* KeychainAccess */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +60,7 @@
 			files = (
 				E19186D82D5EB22D000E622E /* FirebaseCore in Frameworks */,
 				E19186D62D5EB22D000E622E /* FirebaseAuth in Frameworks */,
+				E1B668D92D66B41A007D2FFF /* KeychainAccess in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -121,6 +123,7 @@
 			packageProductDependencies = (
 				E19186D52D5EB22D000E622E /* FirebaseAuth */,
 				E19186D72D5EB22D000E622E /* FirebaseCore */,
+				E1B668D82D66B41A007D2FFF /* KeychainAccess */,
 			);
 			productName = Munger;
 			productReference = E1C873622D4B136B002D2C75 /* Munger.app */;
@@ -206,6 +209,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				E19186D42D5EB22D000E622E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				E1B668D72D66B41A007D2FFF /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E1C873632D4B136B002D2C75 /* Products */;
@@ -580,6 +584,14 @@
 				minimumVersion = 11.8.1;
 			};
 		};
+		E1B668D72D66B41A007D2FFF /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -592,6 +604,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E19186D42D5EB22D000E622E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCore;
+		};
+		E1B668D82D66B41A007D2FFF /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E1B668D72D66B41A007D2FFF /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

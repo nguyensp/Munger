@@ -8,6 +8,7 @@
 import Foundation
 import FirebaseAuth
 import Combine
+import LocalAuthentication
 
 @MainActor
 class AuthenticationViewModel: ObservableObject {
@@ -21,31 +22,62 @@ class AuthenticationViewModel: ObservableObject {
         self.authService = authService
         self.user = authService.getCurrentUser()
         self.isAuthenticated = user != nil
-        print("🛠️ AuthViewModel initialized, user: \(user?.email ?? "nil"), isAuthenticated: \(isAuthenticated)")
         setupAuthStateListener()
     }
     
     private func setupAuthStateListener() {
         authService.setupAuthStateListener { [weak self] user in
-            Task { @MainActor in
-                self?.user = user
-                self?.isAuthenticated = user != nil
-                print("🔄 Auth state changed, user: \(user?.email ?? "nil"), isAuthenticated: \(self?.isAuthenticated ?? false)")
-            }
+            self?.user = user
+            self?.isAuthenticated = user != nil
         }
     }
     
     func signIn(email: String, password: String) {
-        Task { @MainActor in
+        Task {
             do {
                 user = try await authService.signIn(email: email, password: password)
                 isAuthenticated = true
                 error = nil
-                print("✅ Sign-in successful, user: \(user?.email ?? "nil"), isAuthenticated: \(isAuthenticated)")
+                try KeychainManager.saveCredentials(email: email, password: password)
             } catch {
                 self.error = error
                 isAuthenticated = false
-                print("❌ Sign-in failed, error: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func signInWithFaceID() {
+        Task {
+            print("👀 Attempting Face ID sign-in")
+            let context = LAContext()
+            var error: NSError?
+            
+            guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
+                self.error = error ?? NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Biometrics unavailable"])
+                print("❌ Face ID unavailable: \(self.error?.localizedDescription ?? "Unknown")")
+                return
+            }
+            
+            do {
+                let success = try await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Sign in to Munger with Face ID")
+                print("👀 Face ID evaluation result: \(success)")
+                if success {
+                    let (email, password) = KeychainManager.getCredentials()
+                    guard let email = email, let password = password else {
+                        self.error = NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No saved credentials for Face ID"])
+                        print("❌ No credentials found")
+                        return
+                    }
+                    user = try await authService.signIn(email: email, password: password)
+                    isAuthenticated = true
+                    error = nil
+                    print("✅ Face ID sign-in succeeded")
+                } else {
+                    print("❌ Face ID authentication failed")
+                }
+            } catch {
+                self.error = error
+                print("❌ Face ID error: \(error.localizedDescription)")
             }
         }
     }

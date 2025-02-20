@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FirebaseAuth
+import LocalAuthentication
 
 struct SUIAuthenticationView: View {
     @EnvironmentObject var authViewModel: AuthenticationViewModel
@@ -14,6 +15,8 @@ struct SUIAuthenticationView: View {
     @State private var password = ""
     @State private var showingSignUp = false
     @State private var showingPasswordReset = false
+    @State private var isFaceIDAvailable = false
+    @State private var isLoading = false
     
     var body: some View {
         NavigationView {
@@ -28,24 +31,42 @@ struct SUIAuthenticationView: View {
                     .font(.title)
                     .fontWeight(.bold)
                 
-                VStack(spacing: 15) {
-                    TextField("Email", text: $email)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .textInputAutocapitalization(.never)
-                        .keyboardType(.emailAddress)
-                        .autocorrectionDisabled()
+                if isLoading {
+                    ProgressView("Authenticating...")
+                } else {
+                    VStack(spacing: 15) {
+                        TextField("Email", text: $email)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .textInputAutocapitalization(.never)
+                            .keyboardType(.emailAddress)
+                            .autocorrectionDisabled()
+                        
+                        SecureField("Password", text: $password)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                    }
+                    .padding(.horizontal)
                     
-                    SecureField("Password", text: $password)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                    Button("Sign In") {
+                        isLoading = true
+                        authViewModel.signIn(email: email, password: password)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(email.isEmpty || password.isEmpty)
+                    /*
+                    Button(action: {
+                        print("🖲️ Face ID button tapped")
+                        isLoading = true
+                        authViewModel.signInWithFaceID()
+                    }) {
+                        HStack {
+                            Image(systemName: "faceid")
+                            Text("Sign In with Face ID")
+                        }
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(!isFaceIDAvailable || !KeychainManager.hasCredentials())
+                     */
                 }
-                .padding(.horizontal)
-                
-                Button("Sign In") {
-                    print("🔍 Sign-in attempt with email: \(email)")
-                    authViewModel.signIn(email: email, password: password)
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(email.isEmpty || password.isEmpty)
                 
                 Button("Create Account") {
                     showingSignUp = true
@@ -60,6 +81,7 @@ struct SUIAuthenticationView: View {
                         .font(.caption)
                         .multilineTextAlignment(.center)
                 }
+                
                 Button("Forgot Password?") {
                     showingPasswordReset = true
                 }
@@ -69,6 +91,13 @@ struct SUIAuthenticationView: View {
             }
             .padding()
             .navigationBarHidden(true)
+            .onChange(of: authViewModel.isAuthenticated) { _ in isLoading = false }
+            .onAppear {
+                let context = LAContext()
+                var error: NSError?
+                isFaceIDAvailable = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+                print("👀 Face ID evaluation: available=\(isFaceIDAvailable), error=\(error?.localizedDescription ?? "none"), biometricType=\(context.biometryType == .faceID ? "Face ID" : context.biometryType == .touchID ? "Touch ID" : "None")")
+            }
         }
     }
 }
