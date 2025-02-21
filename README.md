@@ -16,5 +16,6 @@ Anyway, cheers to AI which is force multiplier on software engineering learning 
 
 - Paul Nguyen, 02/05/25
 
-So far, 02/07/25:
-![020725MungerAI](https://github.com/user-attachments/assets/3d3fe978-451f-49cd-b004-fe5b67128b99)
+Currently, 02/19/25:
+https://github.com/user-attachments/assets/a7d99398-da7d-4464-b909-48dbe356d0a3
+
