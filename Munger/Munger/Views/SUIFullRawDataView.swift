@@ -84,10 +84,6 @@ struct MetricFullSectionView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            // Metric Header (use label if available, fallback to key)
-            Text(metricData.label ?? metricKey)
-                .font(.headline)
-                .foregroundColor(.blue)
             if let description = metricData.description {
                 Text(description)
                     .font(.subheadline)
@@ -124,7 +120,7 @@ struct UnitSectionView: View {
             ForEach(uniqueDataPoints.indices, id: \.self) { index in
                 let dataPoint = uniqueDataPoints[index]
                 HStack {
-                    Text("FY \(dataPoint.fy)")
+                    Text("FY \(formatYear(dataPoint.fy))") // Updated to remove commas
                         .font(.subheadline)
                     Spacer()
                     Text(formatValue(dataPoint.val, unit: unit))
@@ -140,6 +136,11 @@ struct UnitSectionView: View {
                 .font(.caption)
                 .foregroundColor(uniqueDataPoints.count > 0 ? .green : .red)
         }
+    }
+
+    // Format fiscal year to remove commas (e.g., "2,024" -> "2024")
+    private func formatYear(_ year: Int) -> String {
+        String(year) // Simply converts the Int to a String, removing any formatting like commas
     }
 
     // Deduplicate data points by fiscal year, keeping the latest filing date

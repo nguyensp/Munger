@@ -22,8 +22,8 @@ struct SUICompanyFinancialsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                if !viewModel.bigFiveMetrics.isEmpty {
-                    SUIBigFiveMetricsView(metrics: viewModel.bigFiveMetrics)
+                if let facts = viewModel.companyFacts {
+                    SUIFullRawDataView(facts: facts)
                 }
                 
                 if viewModel.isLoading {
