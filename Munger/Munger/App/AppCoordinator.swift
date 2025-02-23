@@ -12,6 +12,7 @@ struct AppCoordinator {
     let companyListViewModel: CompanyListViewModel
     let watchListViewModel: WatchListViewModel
     let chatViewModel: ChatViewModel
+    let companyFilingsViewModel: CompanyFilingsViewModel
     
     @MainActor
     init(serviceFactory: ServiceFactoryProtocol) {
@@ -27,6 +28,9 @@ struct AppCoordinator {
         )
         self.chatViewModel = ChatViewModel(
             chatService: serviceFactory.makeAIChatService(provider: .openai) // Specify provider
+        )
+        self.companyFilingsViewModel = CompanyFilingsViewModel(
+            secFilingNetworkService: serviceFactory.makeSECFilingNetworkService()
         )
     }
 }

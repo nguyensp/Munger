@@ -10,6 +10,12 @@ import SwiftUI
 struct SUIWatchListView: View {
     @ObservedObject var viewModel: WatchListViewModel
     @EnvironmentObject var watchListManager: WatchListManager
+    private let coordinator: AppCoordinator  // Add coordinator
+    
+    init(coordinator: AppCoordinator) {
+        self.coordinator = coordinator
+        self.viewModel = coordinator.watchListViewModel
+    }
     
     var body: some View {
         NavigationStack {
@@ -19,7 +25,11 @@ struct SUIWatchListView: View {
                 } else if viewModel.watchedCompanies.isEmpty {
                     EmptyWatchListView()
                 } else {
-                    WatchList(companies: viewModel.filteredCompanies, onRemove: viewModel.removeFromWatchList, serviceFactory: ServiceFactory())
+                    WatchList(
+                        companies: viewModel.filteredCompanies,
+                        onRemove: viewModel.removeFromWatchList,
+                        coordinator: coordinator
+                    )
                 }
             }
             .navigationTitle("Watch List")
@@ -43,12 +53,12 @@ struct SUIWatchListView: View {
 private struct WatchList: View {
     let companies: [Company]
     let onRemove: (Company) -> Void
-    let serviceFactory: ServiceFactoryProtocol
+    let coordinator: AppCoordinator
     
     var body: some View {
         List {
             ForEach(companies, id: \.id) { company in
-                NavigationLink(destination: SUICompanyFinancialsView(company: company, serviceFactory: serviceFactory)) {
+                NavigationLink(destination: SUICompanyFinancialsView(company: company, coordinator: coordinator)) {
                     CompanyCellView(company: company)
                 }
                 .swipeActions {
@@ -83,6 +93,6 @@ private struct EmptyWatchListView: View {
 #Preview {
     let factory = ServiceFactory()
     let coordinator = AppCoordinator(serviceFactory: factory)
-    SUIWatchListView(viewModel: coordinator.watchListViewModel)
+    return SUIWatchListView(coordinator: coordinator)
         .environmentObject(coordinator.watchListManager)
 }

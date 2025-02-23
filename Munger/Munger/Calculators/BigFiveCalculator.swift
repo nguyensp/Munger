@@ -171,6 +171,6 @@ class BigFiveCalculator {
 
 struct Logger {
     func log(_ message: String) {
-        print("[BigFiveCalculator] \(message)")
+        //print("[BigFiveCalculator] \(message)")
     }
 }

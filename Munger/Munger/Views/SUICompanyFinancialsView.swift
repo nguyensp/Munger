@@ -11,17 +11,31 @@ import Combine
 struct SUICompanyFinancialsView: View {
     @StateObject private var viewModel: CompanyFinancialsViewModel
     let company: Company
+    let coordinator: AppCoordinator
     
-    init(company: Company, serviceFactory: ServiceFactoryProtocol) {
+    init(company: Company, coordinator: AppCoordinator) {
         self.company = company
+        self.coordinator = coordinator
         _viewModel = StateObject(wrappedValue: CompanyFinancialsViewModel(
-            companyFinancialsNetworkService: serviceFactory.makeCompanyFinancialsNetworkService()
+            companyFinancialsNetworkService: coordinator.serviceFactory.makeCompanyFinancialsNetworkService()
         ))
     }
     
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                NavigationLink(destination: SUICompanyFilingsView(company: company, coordinator: coordinator)) {
+                    HStack {
+                        Image(systemName: "doc.text.fill")
+                        Text("View SEC Filings")
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                    }
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(8)
+                }
+                
                 if let facts = viewModel.companyFacts {
                     SUIFullRawDataView(facts: facts)
                 }

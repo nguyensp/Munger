@@ -11,7 +11,7 @@ import Combine
 struct SUICompanyListView: View {
     @ObservedObject var viewModel: CompanyListViewModel
     @EnvironmentObject var watchListManager: WatchListManager
-    private let coordinator: AppCoordinator // Add this
+    private let coordinator: AppCoordinator
     
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
@@ -27,7 +27,7 @@ struct SUICompanyListView: View {
             } else if viewModel.companies.isEmpty {
                 EmptyStateView()
             } else {
-                CompanyList(companies: viewModel.filteredCompanies, serviceFactory: coordinator.serviceFactory)
+                CompanyList(companies: viewModel.filteredCompanies, coordinator: coordinator)
             }
         }
         .navigationTitle("Companies Available")
@@ -52,12 +52,12 @@ struct SUICompanyListView: View {
 
 struct CompanyList: View {
     let companies: [Company]
-    let serviceFactory: ServiceFactoryProtocol
+    let coordinator: AppCoordinator
     
     var body: some View {
         List {
             ForEach(companies, id: \.id) { company in
-                NavigationLink(destination: SUICompanyFinancialsView(company: company, serviceFactory: serviceFactory)) {
+                NavigationLink(destination: SUICompanyFinancialsView(company: company, coordinator: coordinator)) {
                     CompanyCellView(company: company)
                 }
                 .swipeActions(edge: .leading) {
@@ -68,6 +68,7 @@ struct CompanyList: View {
         }
     }
 }
+
 
 struct CompanyCellView: View {
     @EnvironmentObject var watchListManager: WatchListManager

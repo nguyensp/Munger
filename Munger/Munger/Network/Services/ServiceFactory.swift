@@ -12,6 +12,7 @@ protocol ServiceFactoryProtocol {
     func makeAuthenticationService() -> AuthenticationService
     @MainActor func makeAuthenticationViewModel() -> AuthenticationViewModel
     func makeWatchListManager() -> WatchListManager
+    func makeSECFilingNetworkService() -> SECFilingNetworkService
 }
 
 class ServiceFactory: ServiceFactoryProtocol {
@@ -50,5 +51,9 @@ class ServiceFactory: ServiceFactoryProtocol {
     
     func makeWatchListManager() -> WatchListManager {
         WatchListManager()
+    }
+    
+    func makeSECFilingNetworkService() -> SECFilingNetworkService {
+        return SECFilingNetworkService(requestDispatcher: requestDispatcher)
     }
 }

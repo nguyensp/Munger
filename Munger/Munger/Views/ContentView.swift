@@ -29,7 +29,7 @@ struct ContentView: View {
             .tabItem { Label("Companies", systemImage: "building.2") }
             
             NavigationStack {
-                SUIWatchListView(viewModel: coordinator.watchListViewModel)
+                SUIWatchListView(coordinator: coordinator)
             }
             .tabItem { Label("Watch List", systemImage: "star.fill") }
             
