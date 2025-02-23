@@ -10,8 +10,14 @@ import Combine
 
 struct SUICompanyFinancialsView: View {
     @StateObject private var viewModel: CompanyFinancialsViewModel
+    @State private var selectedView = ViewType.annual
     let company: Company
     let coordinator: AppCoordinator
+    
+    enum ViewType {
+        case annual
+        case raw
+    }
     
     init(company: Company, coordinator: AppCoordinator) {
         self.company = company
@@ -37,7 +43,19 @@ struct SUICompanyFinancialsView: View {
                 }
                 
                 if let facts = viewModel.companyFacts {
-                    SUIFullRawDataView(facts: facts)
+                    Picker("View Type", selection: $selectedView) {
+                        Text("By Year").tag(ViewType.annual)
+                        Text("By Metric").tag(ViewType.raw)
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal)
+                    
+                    switch selectedView {
+                    case .annual:
+                        SUIAnnualDataView(facts: facts)
+                    case .raw:
+                        SUIFullRawDataView(facts: facts)
+                    }
                 }
                 
                 if viewModel.isLoading {

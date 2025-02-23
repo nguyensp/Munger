@@ -120,7 +120,7 @@ struct UnitSectionView: View {
             ForEach(uniqueDataPoints.indices, id: \.self) { index in
                 let dataPoint = uniqueDataPoints[index]
                 HStack {
-                    Text("FY \(formatYear(dataPoint.fy))") // Updated to remove commas
+                    Text(" \(formatYear(dataPoint.fy))") // Updated to remove commas
                         .font(.subheadline)
                     Spacer()
                     Text(formatValue(dataPoint.val, unit: unit))
