@@ -22,6 +22,7 @@ struct SUIRootView: View {
                 ContentView(coordinator: coordinator)
                     .environmentObject(coordinator.authViewModel)
                     .environmentObject(coordinator.watchListManager)
+                    .environmentObject(coordinator.metricsWatchListManager)
             } else {
                 SUIAuthenticationView()
                     .environmentObject(coordinator.authViewModel)

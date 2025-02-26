@@ -10,18 +10,16 @@ import SwiftUI
 struct SUIFullRawDataView: View {
     let facts: CompanyFacts
     @State private var searchText = ""
-    // State to track expansion for each metric
     @State private var expandedMetrics: Set<String> = []
+    @EnvironmentObject var metricsWatchListManager: MetricsWatchListManager
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // Search bar
                 TextField("Search metrics...", text: $searchText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding(.bottom, 10)
 
-                // Header
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Full Financial Data")
                         .font(.title2)
@@ -34,7 +32,6 @@ struct SUIFullRawDataView: View {
                 }
                 .padding(.bottom, 10)
 
-                // Metrics List
                 if let usGaap = facts.facts.usGaap {
                     let filteredMetrics = usGaap.keys.filter {
                         searchText.isEmpty ||
@@ -47,20 +44,25 @@ struct SUIFullRawDataView: View {
                                 isExpanded: Binding(
                                     get: { expandedMetrics.contains(metricKey) },
                                     set: { isExpanded in
-                                        if isExpanded {
-                                            expandedMetrics.insert(metricKey)
-                                        } else {
-                                            expandedMetrics.remove(metricKey)
-                                        }
+                                        if isExpanded { expandedMetrics.insert(metricKey) } else { expandedMetrics.remove(metricKey) }
                                     }
                                 )
                             ) {
                                 MetricFullSectionView(metricKey: metricKey, metricData: metricData)
                             } label: {
-                                Text(metricData.label ?? metricKey)
-                                    .font(.headline)
-                                    .foregroundColor(.blue)
-                                    .padding(.vertical, 4)
+                                HStack {
+                                    Text(metricData.label ?? metricKey)
+                                        .font(.headline)
+                                        .foregroundColor(.blue)
+                                    Spacer()
+                                    Button(action: {
+                                        metricsWatchListManager.toggleMetric(companyCik: facts.cik, metricKey: metricKey)
+                                    }) {
+                                        Image(systemName: metricsWatchListManager.isWatched(companyCik: facts.cik, metricKey: metricKey) ? "star.fill" : "star")
+                                            .foregroundColor(.yellow)
+                                    }
+                                }
+                                .padding(.vertical, 4)
                             }
                             .padding()
                             .background(Color(.systemGray6))

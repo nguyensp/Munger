@@ -11,17 +11,15 @@ struct SUIAnnualDataView: View {
     let facts: CompanyFacts
     @State private var searchText = ""
     @State private var selectedYear: Int?
+    @EnvironmentObject var metricsWatchListManager: MetricsWatchListManager // Add this
     
     private var years: [Int] {
-        // Get all unique fiscal years across all metrics
         guard let usGaap = facts.facts.usGaap else { return [] }
-        
         let allYears = usGaap.values.flatMap { metricData in
             metricData.units.values.flatMap { dataPoints in
                 dataPoints.filter { $0.isAnnual }.map { $0.fy }
             }
         }
-        
         return Array(Set(allYears)).sorted(by: >)
     }
     
@@ -29,13 +27,11 @@ struct SUIAnnualDataView: View {
         guard let usGaap = facts.facts.usGaap else { return [] }
         
         return usGaap.compactMap { (key, metricData) -> (String, Double, String, String)? in
-            // Filter for search if needed
             if !searchText.isEmpty {
                 let label = metricData.label?.lowercased() ?? key.lowercased()
                 guard label.contains(searchText.lowercased()) else { return nil }
             }
             
-            // Find the latest filing for this metric in this year
             let latestValue = metricData.units.compactMap { (unit, dataPoints) -> (Double, String)? in
                 let yearPoints = dataPoints.filter { $0.isAnnual && $0.fy == year }
                 guard let latest = yearPoints.sorted(by: { $0.filed > $1.filed }).first else { return nil }
@@ -55,7 +51,6 @@ struct SUIAnnualDataView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding(.bottom, 10)
                 
-                // Years List
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
                         ForEach(years, id: \.self) { year in
@@ -84,11 +79,20 @@ struct SUIAnnualDataView: View {
                             .fontWeight(.bold)
                         
                         ForEach(metrics, id: \.key) { metric in
-                            MetricRowView(
-                                label: metric.label,
-                                value: metric.value,
-                                unit: metric.unit
-                            )
+                            HStack {
+                                MetricRowView(
+                                    label: metric.label,
+                                    value: metric.value,
+                                    unit: metric.unit
+                                )
+                                Spacer()
+                                Button(action: {
+                                    metricsWatchListManager.toggleMetric(companyCik: facts.cik, metricKey: metric.key)
+                                }) {
+                                    Image(systemName: metricsWatchListManager.isWatched(companyCik: facts.cik, metricKey: metric.key) ? "star.fill" : "star")
+                                        .foregroundColor(.yellow)
+                                }
+                            }
                         }
                     }
                     .padding()

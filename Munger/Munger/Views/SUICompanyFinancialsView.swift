@@ -17,6 +17,7 @@ struct SUICompanyFinancialsView: View {
     enum ViewType {
         case annual
         case raw
+        case saved // Add this
     }
     
     init(company: Company, coordinator: AppCoordinator) {
@@ -46,6 +47,7 @@ struct SUICompanyFinancialsView: View {
                     Picker("View Type", selection: $selectedView) {
                         Text("By Year").tag(ViewType.annual)
                         Text("By Metric").tag(ViewType.raw)
+                        Text("Saved").tag(ViewType.saved)
                     }
                     .pickerStyle(.segmented)
                     .padding(.horizontal)
@@ -55,6 +57,8 @@ struct SUICompanyFinancialsView: View {
                         SUIAnnualDataView(facts: facts)
                     case .raw:
                         SUIFullRawDataView(facts: facts)
+                    case .saved:
+                        SUISavedMetricsView(facts: facts)
                     }
                 }
                 
@@ -68,5 +72,6 @@ struct SUICompanyFinancialsView: View {
         .onAppear {
             viewModel.fetchCompanyFinancials(cik: company.cik)
         }
+        .environmentObject(coordinator.metricsWatchListManager) // Pass the manager
     }
 }

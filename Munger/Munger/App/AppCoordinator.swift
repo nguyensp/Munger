@@ -9,6 +9,7 @@ struct AppCoordinator {
     let serviceFactory: ServiceFactoryProtocol
     let authViewModel: AuthenticationViewModel
     let watchListManager: WatchListManager
+    let metricsWatchListManager: MetricsWatchListManager
     let companyListViewModel: CompanyListViewModel
     let watchListViewModel: WatchListViewModel
     let chatViewModel: ChatViewModel
@@ -32,5 +33,6 @@ struct AppCoordinator {
         self.companyFilingsViewModel = CompanyFilingsViewModel(
             secFilingNetworkService: serviceFactory.makeSECFilingNetworkService()
         )
+        self.metricsWatchListManager = MetricsWatchListManager()
     }
 }
