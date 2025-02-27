@@ -14,11 +14,35 @@ struct SUISavedMetricsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                if let watched = metricsWatchListManager.watchedMetrics[String(facts.cik)], !watched.isEmpty {
-                    ForEach(Array(watched.sorted()), id: \.self) { metricKey in
+                if let watched = metricsWatchListManager.watchedMetricYears[String(facts.cik)], !watched.isEmpty {
+                    let groupedByMetric = Dictionary(grouping: watched, by: { $0.metricKey })
+                    ForEach(groupedByMetric.keys.sorted(), id: \.self) { metricKey in
                         if let metricData = facts.facts.usGaap?[metricKey] {
                             DisclosureGroup {
-                                MetricFullSectionView(metricKey: metricKey, metricData: metricData)
+                                VStack(alignment: .leading, spacing: 10) {
+                                    if let description = metricData.description {
+                                        Text(description)
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
+                                    }
+                                    ForEach(Array(metricData.units.keys.sorted()), id: \.self) { unit in
+                                        if let dataPoints = metricData.units[unit]?.filter({ $0.isAnnual }) {
+                                            let savedYears = groupedByMetric[metricKey]?.map { $0.year } ?? []
+                                            let filteredDataPoints = dataPoints.filter { savedYears.contains($0.fy) }
+                                            if !filteredDataPoints.isEmpty {
+                                                UnitSectionView(
+                                                    unit: unit,
+                                                    dataPoints: filteredDataPoints,
+                                                    metricKey: metricKey,
+                                                    companyCik: facts.cik
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(8)
                             } label: {
                                 Text(metricData.label ?? metricKey)
                                     .font(.headline)

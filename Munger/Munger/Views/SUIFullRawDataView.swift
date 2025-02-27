@@ -48,21 +48,16 @@ struct SUIFullRawDataView: View {
                                     }
                                 )
                             ) {
-                                MetricFullSectionView(metricKey: metricKey, metricData: metricData)
+                                MetricFullSectionView(
+                                    metricKey: metricKey,
+                                    metricData: metricData,
+                                    companyCik: facts.cik // Pass CIK
+                                )
                             } label: {
-                                HStack {
-                                    Text(metricData.label ?? metricKey)
-                                        .font(.headline)
-                                        .foregroundColor(.blue)
-                                    Spacer()
-                                    Button(action: {
-                                        metricsWatchListManager.toggleMetric(companyCik: facts.cik, metricKey: metricKey)
-                                    }) {
-                                        Image(systemName: metricsWatchListManager.isWatched(companyCik: facts.cik, metricKey: metricKey) ? "star.fill" : "star")
-                                            .foregroundColor(.yellow)
-                                    }
-                                }
-                                .padding(.vertical, 4)
+                                Text(metricData.label ?? metricKey)
+                                    .font(.headline)
+                                    .foregroundColor(.blue)
+                                    .padding(.vertical, 4)
                             }
                             .padding()
                             .background(Color(.systemGray6))
@@ -79,10 +74,11 @@ struct SUIFullRawDataView: View {
     }
 }
 
-// Reusable view for each metric section
 struct MetricFullSectionView: View {
     let metricKey: String
     let metricData: MetricData
+    let companyCik: Int // Add this
+    @EnvironmentObject var metricsWatchListManager: MetricsWatchListManager // Add this
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -92,10 +88,14 @@ struct MetricFullSectionView: View {
                     .foregroundColor(.gray)
             }
 
-            // Units and Data Points
             ForEach(Array(metricData.units.keys.sorted()), id: \.self) { unit in
                 if let dataPoints = metricData.units[unit]?.filter({ $0.isAnnual }) {
-                    UnitSectionView(unit: unit, dataPoints: dataPoints)
+                    UnitSectionView(
+                        unit: unit,
+                        dataPoints: dataPoints,
+                        metricKey: metricKey, // Pass these
+                        companyCik: companyCik
+                    )
                 }
             }
         }
@@ -105,10 +105,12 @@ struct MetricFullSectionView: View {
     }
 }
 
-// Reusable view for each unit section within a metric
 struct UnitSectionView: View {
     let unit: String
     let dataPoints: [DataPoint]
+    let metricKey: String // Add this
+    let companyCik: Int // Add this
+    @EnvironmentObject var metricsWatchListManager: MetricsWatchListManager // Add this
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -116,13 +118,22 @@ struct UnitSectionView: View {
                 .font(.subheadline)
                 .fontWeight(.medium)
             
-            // Deduplicate data points by fiscal year, keeping the latest filing
             let uniqueDataPoints = deduplicateDataPoints(dataPoints)
             
             ForEach(uniqueDataPoints.indices, id: \.self) { index in
                 let dataPoint = uniqueDataPoints[index]
                 HStack {
-                    Text(" \(formatYear(dataPoint.fy))") // Updated to remove commas
+                    Button(action: {
+                        metricsWatchListManager.toggleMetricYear(
+                            companyCik: companyCik,
+                            metricKey: metricKey,
+                            year: dataPoint.fy
+                        )
+                    }) {
+                        Image(systemName: metricsWatchListManager.isWatched(companyCik: companyCik, metricKey: metricKey, year: dataPoint.fy) ? "star.fill" : "star")
+                            .foregroundColor(.yellow)
+                    }
+                    Text(" \(formatYear(dataPoint.fy))")
                         .font(.subheadline)
                     Spacer()
                     Text(formatValue(dataPoint.val, unit: unit))

@@ -8,20 +8,46 @@
 import Foundation
 
 class MetricsWatchListManager: ObservableObject {
-    @Published private(set) var watchedMetrics: [String: Set<String>] = [:] // [CIK: Set<MetricKey>]
+    @Published private(set) var watchedMetricYears: [String: Set<MetricYear>] = [:] // [CIK: Set<(metricKey, year)>]
+    private let userDefaults = UserDefaults.standard
+    private let storageKey = "WatchedMetricYears"
     
-    func toggleMetric(companyCik: Int, metricKey: String) {
-        let cikKey = String(companyCik)
-        var metrics = watchedMetrics[cikKey] ?? Set<String>()
-        if metrics.contains(metricKey) {
-            metrics.remove(metricKey)
-        } else {
-            metrics.insert(metricKey)
-        }
-        watchedMetrics[cikKey] = metrics.isEmpty ? nil : metrics
+    struct MetricYear: Hashable, Codable { // Add Codable for JSON
+        let metricKey: String
+        let year: Int
     }
     
-    func isWatched(companyCik: Int, metricKey: String) -> Bool {
-        watchedMetrics[String(companyCik)]?.contains(metricKey) ?? false
+    init() {
+        loadWatchedMetricYears() // Load on init
+    }
+    
+    func toggleMetricYear(companyCik: Int, metricKey: String, year: Int) {
+        let cikKey = String(companyCik)
+        var metricYears = watchedMetricYears[cikKey] ?? Set<MetricYear>()
+        let metricYear = MetricYear(metricKey: metricKey, year: year)
+        if metricYears.contains(metricYear) {
+            metricYears.remove(metricYear)
+        } else {
+            metricYears.insert(metricYear)
+        }
+        watchedMetricYears[cikKey] = metricYears.isEmpty ? nil : metricYears
+        saveWatchedMetricYears() // Save after every change
+    }
+    
+    func isWatched(companyCik: Int, metricKey: String, year: Int) -> Bool {
+        watchedMetricYears[String(companyCik)]?.contains(MetricYear(metricKey: metricKey, year: year)) ?? false
+    }
+    
+    private func loadWatchedMetricYears() {
+        if let data = userDefaults.data(forKey: storageKey),
+           let decoded = try? JSONDecoder().decode([String: Set<MetricYear>].self, from: data) {
+            watchedMetricYears = decoded
+        }
+    }
+    
+    private func saveWatchedMetricYears() {
+        if let encoded = try? JSONEncoder().encode(watchedMetricYears) {
+            userDefaults.set(encoded, forKey: storageKey)
+        }
     }
 }
