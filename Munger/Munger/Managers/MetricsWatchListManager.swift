@@ -121,4 +121,25 @@ class MetricsWatchListManager: ObservableObject {
         let investedCapital = totalAssets - currentLiabilities
         return nopat / investedCapital
     }
+    
+    func calculateROICAverages(companyCik: Int, facts: CompanyFacts, periods: [Int]) -> [Int: Double] {
+        let availableYears = roicReadyYears(companyCik: companyCik, facts: facts)
+        let yearsCount = availableYears.count
+        var averages: [Int: Double] = [:]
+        
+        for period in periods.filter({ $0 <= yearsCount }) { // Only include periods with enough data
+            let recentYears = Array(availableYears.prefix(period))
+            if !recentYears.isEmpty {
+                let roicValues = recentYears.compactMap { year in
+                    calculateROICForYear(companyCik: companyCik, year: year, facts: facts)
+                }
+                if !roicValues.isEmpty {
+                    let avg = roicValues.reduce(0.0, +) / Double(roicValues.count)
+                    averages[period] = avg * 100 // Store as percentage
+                }
+            }
+        }
+        
+        return averages
+    }
 }
