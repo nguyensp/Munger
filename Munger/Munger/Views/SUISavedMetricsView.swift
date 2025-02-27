@@ -13,6 +13,7 @@ struct SUISavedMetricsView: View {
     @State private var roicReadyYears: [Int] = []
     @State private var hasGatheredROIC = false
     @State private var roicResults: [Int: Double] = [:] // Year -> ROIC
+    @State private var roicAverageResults: [Int: Double] = [:] // Period (years) -> ROIC Average
 
     private let roicMetricKeys = Set(["NetIncomeLoss", "Assets", "LiabilitiesCurrent"])
     private let periods = [10, 7, 5, 3, 1]
@@ -48,6 +49,7 @@ struct SUISavedMetricsView: View {
                             roicReadyYears = metricsWatchListManager.roicReadyYears(companyCik: facts.cik, facts: facts)
                             hasGatheredROIC = true
                             roicResults = [:] // Reset results when gathering anew
+                            roicAverageResults = [:] // Reset average results
                         }) {
                             Text("Gather ROIC Data")
                                 .font(.headline)
@@ -76,8 +78,8 @@ struct SUISavedMetricsView: View {
                         }
                     }
 
-                    // Yearly ROIC Calculations
-                    if !roicReadyYears.isEmpty {
+                    // Yearly ROIC Calculations (only after gathering, no chevron)
+                    if hasGatheredROIC && !roicReadyYears.isEmpty {
                         VStack(alignment: .leading, spacing: 15) {
                             Text("ROIC Calculation Ready For:")
                                 .font(.headline)
@@ -102,9 +104,6 @@ struct SUISavedMetricsView: View {
                                             Text(String(format: "%.2f%%", roic * 100))
                                                 .font(.subheadline)
                                                 .foregroundColor(.blue)
-                                        } else {
-                                            Image(systemName: "chevron.right")
-                                                .foregroundColor(.gray)
                                         }
                                     }
                                     .padding(.vertical, 8) // Increased vertical padding
@@ -117,43 +116,53 @@ struct SUISavedMetricsView: View {
                         .padding(.top, 15)
                     }
 
-                    // ROIC Averages (auto-calculated in list view)
-                    let availableYears = metricsWatchListManager.roicReadyYears(companyCik: facts.cik, facts: facts)
-                    let yearsCount = availableYears.count
-                    let validPeriods = periods.filter { $0 <= yearsCount }
-                    
-                    if !validPeriods.isEmpty {
-                        VStack(alignment: .leading, spacing: 15) {
-                            Text("ROIC Averages")
-                                .font(.headline)
-                            ForEach(validPeriods, id: \.self) { period in
-                                if let roicAvg = metricsWatchListManager.calculateROICAverages(
-                                    companyCik: facts.cik,
-                                    facts: facts,
-                                    periods: [period]
-                                )[period] {
-                                    HStack {
-                                        Text("\(period) Years")
-                                            .font(.subheadline)
-                                            .foregroundColor(.blue)
-                                        Spacer()
-                                        Text(String(format: "%.1f%%", roicAvg))
-                                            .font(.subheadline)
-                                            .foregroundColor(.blue)
+                    // ROIC Averages (only after gathering, no chevron)
+                    if hasGatheredROIC {
+                        let availableYears = metricsWatchListManager.roicReadyYears(companyCik: facts.cik, facts: facts)
+                        let yearsCount = availableYears.count
+                        let validPeriods = periods.filter { $0 <= yearsCount }
+                        
+                        if !validPeriods.isEmpty {
+                            VStack(alignment: .leading, spacing: 15) {
+                                Text("ROIC Averages")
+                                    .font(.headline)
+                                ForEach(validPeriods, id: \.self) { period in
+                                    Button(action: {
+                                        if let roicAvg = metricsWatchListManager.calculateROICAverages(
+                                            companyCik: facts.cik,
+                                            facts: facts,
+                                            periods: [period]
+                                        )[period] {
+                                            var updatedAverages = roicAverageResults
+                                            updatedAverages[period] = roicAvg
+                                            roicAverageResults = updatedAverages
+                                        }
+                                    }) {
+                                        HStack {
+                                            Text("\(period) Years")
+                                                .font(.subheadline)
+                                                .foregroundColor(.blue)
+                                            Spacer()
+                                            if let roicAvg = roicAverageResults[period] {
+                                                Text(String(format: "%.1f%%", roicAvg))
+                                                    .font(.subheadline)
+                                                    .foregroundColor(.blue)
+                                            }
+                                        }
+                                        .padding(.vertical, 8) // Increased vertical padding
+                                        .padding(.horizontal, 12) // Increased horizontal padding
+                                        .background(Color.green.opacity(0.2))
+                                        .cornerRadius(8) // Slightly larger corner radius
                                     }
-                                    .padding(.vertical, 8) // Increased vertical padding
-                                    .padding(.horizontal, 12) // Increased horizontal padding
-                                    .background(Color.green.opacity(0.2))
-                                    .cornerRadius(8) // Slightly larger corner radius
                                 }
                             }
-                        }
-                        .padding(.top, 15)
-                    } else {
-                        Text("Not enough data for ROIC averages (need at least 1 year)")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
                             .padding(.top, 15)
+                        } else {
+                            Text("Not enough data for ROIC averages (need at least 1 year)")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                                .padding(.top, 15)
+                        }
                     }
                 }
                 .padding()
