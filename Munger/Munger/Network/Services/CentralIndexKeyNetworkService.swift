@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+/// `CentralIndexKeyNetworkService` retrieves all companies that have a CIK keys available
 public final class CentralIndexKeyNetworkService {
     private let requestDispatcher: RequestDispatcher
     
@@ -17,6 +18,8 @@ public final class CentralIndexKeyNetworkService {
         self.requestDispatcher = requestDispatcher
     }
     
+    /// Creates a URLRequest using `RequestBuilder` and dispatches the request with a `RequestDispatcher`.
+    /// Response is modeled with `CIKModel`
     func getCompanyTickers() -> AnyPublisher<[Company], Error> {
         guard let url = URL(string: baseURL) else {
             return Fail(error: URLError(.badURL))

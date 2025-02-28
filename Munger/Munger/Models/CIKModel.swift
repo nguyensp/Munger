@@ -27,7 +27,6 @@
        "Nasdaq"
      ],
  */
-
 struct CIKResponse: Codable {
     struct CompanyData: Codable {
         init(from decoder: Decoder) throws {

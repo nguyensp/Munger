@@ -7,7 +7,18 @@
 
 import Foundation
 
+/// Builds URLRequests to be dispatched
 struct RequestBuilder {
+    /**
+     Creates a URLRequest with the specified configurations.
+     - Parameters:
+        - url: The URL for the request
+        - method: The HTTP method for the request (e.g. GET, POST).
+        - headers: Optional HTTP headers for the request.
+        - body: Optional body data for the request.
+     - Returns: A configured URLRequest object.
+     This method is used internally to create requests with custom configurations.
+     */
     static func createRequest(
         url: URL,
         method: String,
@@ -21,6 +32,13 @@ struct RequestBuilder {
         return urlRequest
     }
     
+    /**
+     Creates a GET URLRequest with the specified URL and optional headers.
+     - Parameters:
+        - url: The URL for the request.
+        - headers: Optional HTTP headers for the request.
+     - Returns: A configured GET URLRequest object.
+     */
     static func createGetRequest(
         from url: URL,
         header: [String: String]? = nil
