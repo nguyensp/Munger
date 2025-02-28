@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+/// Handles company Filing Logic
 class CompanyFilingsViewModel: ObservableObject {
     @Published var filings: [Filing] = []
     @Published var isLoading: Bool = false

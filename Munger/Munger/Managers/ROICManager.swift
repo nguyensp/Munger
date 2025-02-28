@@ -12,6 +12,7 @@ struct ROICMetricYear: MetricYearProtocol {
     let year: Int
 }
 
+/// Calculate Return On Investment Capital
 class ROICManager: BaseMetricManager<ROICMetricYear> {
     private let requiredKeys = ["NetIncomeLoss", "Assets", "LiabilitiesCurrent"]
     

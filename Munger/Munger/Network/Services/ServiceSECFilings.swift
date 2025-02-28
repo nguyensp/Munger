@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+/// `ServiceSECFilings` fetches all company 10k's with specified CIK key
 public final class ServiceSECFilings {
     private let requestDispatcher: RequestDispatcher
     

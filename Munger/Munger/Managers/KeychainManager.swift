@@ -8,6 +8,7 @@
 import Foundation
 import KeychainAccess
 
+/// Store user login information on Keychain
 struct KeychainManager {
     private static let keychain = Keychain(service: "personal.Munger")
     private static let emailKey = "userEmail"

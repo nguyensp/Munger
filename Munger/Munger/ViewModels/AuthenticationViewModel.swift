@@ -10,6 +10,7 @@ import FirebaseAuth
 import Combine
 import LocalAuthentication
 
+/// Handles Authentication Logic
 @MainActor
 class AuthenticationViewModel: ObservableObject {
     @Published var user: User?

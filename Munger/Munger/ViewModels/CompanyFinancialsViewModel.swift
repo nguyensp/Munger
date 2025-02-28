@@ -8,10 +8,10 @@
 import Foundation
 import Combine
 
+/// Handles Company Fact Logic
 class CompanyFinancialsViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var companyFacts: CompanyFacts?
-    @Published var bigFiveMetrics: [BigFiveMetrics] = []
     @Published var error: Error?
     
     private var cancellables = Set<AnyCancellable>()
@@ -39,13 +39,7 @@ class CompanyFinancialsViewModel: ObservableObject {
                 self?.isLoading = false
             }, receiveValue: { [weak self] facts in
                 self?.companyFacts = facts
-                self?.calculateMetrics(facts: facts)
             })
             .store(in: &cancellables)
-    }
-    
-    private func calculateMetrics(facts: CompanyFacts) {
-        let calculator = BigFiveCalculator(facts: facts)
-        bigFiveMetrics = calculator.calculateMetrics()
     }
 }

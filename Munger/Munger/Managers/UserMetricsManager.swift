@@ -12,6 +12,7 @@ struct UserMetricYear: MetricYearProtocol {
     let year: Int
 }
 
+/// Allow user to save metrics pertinent to them
 class UserMetricsManager: BaseMetricManager<UserMetricYear> {
     init() {
         super.init(storageKey: "WatchedUserMetricYears")

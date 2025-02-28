@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Manage User Watchlist of Saved Companies
 class WatchListManager: ObservableObject {
     @Published private(set) var watchedCompanies: Set<Int> = []
     private let userDefaults = UserDefaults.standard

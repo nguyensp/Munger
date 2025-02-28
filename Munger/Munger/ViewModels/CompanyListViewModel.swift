@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+/// Handles Company List Logic
 class CompanyListViewModel: ObservableObject {
     @Published var companies: [Company] = []
     @Published var isLoading: Bool = false

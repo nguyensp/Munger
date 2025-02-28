@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+/// Handles AIChat Logic
 class AIChatViewModel: ObservableObject {
     @Published var messages: [(role: String, content: String)] = []
     @Published var isLoading = false

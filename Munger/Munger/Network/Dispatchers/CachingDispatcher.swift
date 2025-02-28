@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+/// CoreData Wrapper around URLSessionCombineDispatcher. `RequestDispatcher` conformant.
 class CachingDispatcher: RequestDispatcher {
     private let networkDispatcher: URLSessionCombineDispatcher
     private let cache: Cache

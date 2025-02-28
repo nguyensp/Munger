@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+/// `ServiceCompanyFinancials` fetches company facts with specified CIK key
 public final class ServiceCompanyFinancials {
    private let requestDispatcher: RequestDispatcher
     

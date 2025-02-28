@@ -13,6 +13,7 @@ protocol ServiceFactoryProtocol {
     func makeWatchListManager() -> WatchListManager
 }
 
+/// Creates all network services and injects our specificed `RequestDispatcher` into them
 class ServiceFactory: ServiceFactoryProtocol {
     private let requestDispatcher: RequestDispatcher
     

@@ -5,6 +5,7 @@
 //  Created by Paul Nguyen on 2/19/25.
 //
 
+/// Injects proper Services into their respective ViewModels using `ServiceFactory`
 struct AppCoordinator {
     let serviceFactory: ServiceFactoryProtocol
     

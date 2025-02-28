@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+/// Handles Watch List Logic
 class WatchListViewModel: ObservableObject {
     @Published var watchedCompanies: [Company] = []
     @Published var isLoading: Bool = false

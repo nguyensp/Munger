@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+/// AI Chat Service
 public final class ServiceAIChat {
     private let requestDispatcher: RequestDispatcher
     private var provider: AIProvider
