@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+/// Concrete implementation of RequestDispatcher using `URLSession` and `Combine`
 class URLSessionCombineDispatcher: RequestDispatcher {
     private let session: URLSession
     

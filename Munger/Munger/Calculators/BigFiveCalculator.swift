@@ -5,6 +5,7 @@
 //  Created by Paul Nguyen on 2/4/25.
 //
 
+/// Deprecated
 import Foundation
 
 struct HistoricalGrowthRates {

@@ -19,11 +19,9 @@ struct SUIRootView: View {
     var body: some View {
         NavigationStack {
             if isAuthenticated {
-                ContentView(coordinator: coordinator)
+                SUIMainView(coordinator: coordinator)
                     .environmentObject(coordinator.authViewModel)
                     .environmentObject(coordinator.watchListManager)
-                    // Remove old manager reference
-                    // .environmentObject(coordinator.metricsWatchListManager)
                     .environmentObject(coordinator.userMetricsManager)
                     .environmentObject(coordinator.roicManager)
             } else {

@@ -27,6 +27,57 @@ class ROICManager: BaseMetricManager<ROICMetricYear> {
         gatherMetrics(companyCik: companyCik, facts: facts, requiredKeys: requiredKeys)
     }
     
+    override func gatherMetrics(companyCik: Int, facts: CompanyFacts, requiredKeys: [String]) {
+        let cikKey = String(companyCik)
+        var updatedWatched = watchedMetricYears
+        var metricYears = updatedWatched[cikKey] ?? Set<ROICMetricYear>()
+        
+        guard let usGaap = facts.facts.usGaap else { return }
+        
+        for key in requiredKeys {
+            guard requiredKeys.contains(key) else {
+                print("Warning: Attempted to gather non-ROIC metric \(key) in ROICManager")
+                continue
+            }
+            if let metricData = usGaap[key],
+               let dataPoints = metricData.units["USD"]?.filter({ $0.isAnnual }) {
+                for dataPoint in dataPoints {
+                    metricYears.insert(createMetricYear(metricKey: key, year: dataPoint.fy))
+                }
+            }
+        }
+        
+        if metricYears.isEmpty {
+            updatedWatched.removeValue(forKey: cikKey)
+        } else {
+            updatedWatched[cikKey] = metricYears
+        }
+        
+        updateWatchedMetricYears(updatedWatched)
+        saveWatchedMetricYears()
+    }
+    
+    override func loadWatchedMetricYears() {
+        if let data = UserDefaults.standard.data(forKey: storageKey),
+           let decoded = try? JSONDecoder().decode([String: Set<ROICMetricYear>].self, from: data) {
+            var cleanedData = decoded
+            for (cik, metrics) in decoded {
+                let filteredMetrics = metrics.filter { requiredKeys.contains($0.metricKey) }
+                if filteredMetrics.isEmpty {
+                    cleanedData.removeValue(forKey: cik)
+                } else {
+                    cleanedData[cik] = filteredMetrics
+                }
+            }
+            print("Loaded ROIC metrics from \(storageKey):")
+            for (cik, metrics) in cleanedData {
+                print("CIK \(cik): \(metrics.map { "\($0.metricKey) (\($0.year))" })")
+            }
+            updateWatchedMetricYears(cleanedData)
+            saveWatchedMetricYears() // Persist the cleaned data
+        }
+    }
+    
     func roicReadyYears(companyCik: Int, facts: CompanyFacts) -> [Int] {
         return readyYears(companyCik: companyCik, facts: facts, requiredKeys: Set(requiredKeys))
     }

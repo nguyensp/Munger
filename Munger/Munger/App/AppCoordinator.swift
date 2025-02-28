@@ -10,16 +10,12 @@ struct AppCoordinator {
     let authViewModel: AuthenticationViewModel
     let watchListManager: WatchListManager
     
-    // Keep new specialized managers
     let userMetricsManager: UserMetricsManager
     let roicManager: ROICManager
     
-    // Remove the original manager
-    // let metricsWatchListManager: MetricsWatchListManager
-    
     let companyListViewModel: CompanyListViewModel
     let watchListViewModel: WatchListViewModel
-    let chatViewModel: ChatViewModel
+    let aichatViewModel: AIChatViewModel
     let companyFilingsViewModel: CompanyFilingsViewModel
     
     @MainActor
@@ -34,7 +30,7 @@ struct AppCoordinator {
             watchListManager: watchListManager,
             networkService: serviceFactory.makeCentralIndexKeyNetworkService()
         )
-        self.chatViewModel = ChatViewModel(
+        self.aichatViewModel = AIChatViewModel(
             chatService: serviceFactory.makeAIChatService(provider: .openai)
         )
         self.companyFilingsViewModel = CompanyFilingsViewModel(

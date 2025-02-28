@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  SUIMainView.swift
 //  Munger
 //
 //  Created by Paul Nguyen on 1/30/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct SUIMainView: View {
     private let coordinator: AppCoordinator
     
     init(coordinator: AppCoordinator) {
@@ -31,10 +31,10 @@ struct ContentView: View {
             NavigationStack {
                 SUIWatchListView(coordinator: coordinator)
             }
-            .tabItem { Label("Watch List", systemImage: "star.fill") }
+            .tabItem { Label("Watch List", systemImage: "eye.fill") }
             
             NavigationStack {
-                SUIChatView(viewModel: coordinator.chatViewModel)
+                SUIAIChatView(viewModel: coordinator.aichatViewModel)
             }
             .tabItem { Label("AI Analysis", systemImage: "brain") }
         }

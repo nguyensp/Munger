@@ -1,5 +1,5 @@
 //
-//  SUIChatView.swift
+//  SUIAIChatView.swift
 //  Munger
 //
 //  Created by Paul Nguyen on 2/6/25.
@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct SUIChatView: View {
-    @ObservedObject var viewModel: ChatViewModel // Passed from coordinator
+struct SUIAIChatView: View {
+    @ObservedObject var viewModel: AIChatViewModel // Passed from coordinator
     @State private var messageText = ""
     @FocusState private var isTextFieldFocused: Bool
     
@@ -121,5 +121,5 @@ struct MessageBubble: View {
 #Preview {
     let factory = ServiceFactory()
     let coordinator = AppCoordinator(serviceFactory: factory)
-    SUIChatView(viewModel: coordinator.chatViewModel)
+    SUIAIChatView(viewModel: coordinator.aichatViewModel)
 }

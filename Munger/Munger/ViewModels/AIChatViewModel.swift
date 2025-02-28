@@ -1,5 +1,5 @@
 //
-//  ChatViewModel.swift
+//  AIChatViewModel.swift
 //  Munger
 //
 //  Created by Paul Nguyen on 2/6/25.
@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-class ChatViewModel: ObservableObject {
+class AIChatViewModel: ObservableObject {
     @Published var messages: [(role: String, content: String)] = []
     @Published var isLoading = false
     @Published var error: Error?

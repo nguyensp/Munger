@@ -9,7 +9,7 @@ import Foundation
 import KeychainAccess
 
 struct KeychainManager {
-    private static let keychain = Keychain(service: "personal.Munger") // Adjust if needed to match CFBundleIdentifier
+    private static let keychain = Keychain(service: "personal.Munger")
     private static let emailKey = "userEmail"
     private static let passwordKey = "userPassword"
     

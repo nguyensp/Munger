@@ -16,7 +16,7 @@ protocol MetricYearProtocol: Hashable, Codable {
 class BaseMetricManager<T: MetricYearProtocol>: ObservableObject {
     @Published private(set) var watchedMetricYears: [String: Set<T>]
     private let userDefaults: UserDefaults
-    private let storageKey: String
+    /*protected*/ internal let storageKey: String
     
     init(storageKey: String, userDefaults: UserDefaults = .standard) {
         self.storageKey = storageKey
@@ -25,7 +25,11 @@ class BaseMetricManager<T: MetricYearProtocol>: ObservableObject {
         loadWatchedMetricYears()
     }
     
-    // Function to create a MetricYear - must be implemented by subclasses
+    // Protected method to update watchedMetricYears
+    /*protected*/ func updateWatchedMetricYears(_ newValue: [String: Set<T>]) {
+        watchedMetricYears = newValue
+    }
+    
     func createMetricYear(metricKey: String, year: Int) -> T {
         fatalError("Must be implemented by subclass")
     }
@@ -48,7 +52,7 @@ class BaseMetricManager<T: MetricYearProtocol>: ObservableObject {
             updatedWatched[cikKey] = metricYears
         }
         
-        watchedMetricYears = updatedWatched
+        updateWatchedMetricYears(updatedWatched)
         saveWatchedMetricYears()
     }
     
@@ -60,7 +64,7 @@ class BaseMetricManager<T: MetricYearProtocol>: ObservableObject {
     func loadWatchedMetricYears() {
         if let data = userDefaults.data(forKey: storageKey),
            let decoded = try? JSONDecoder().decode([String: Set<T>].self, from: data) {
-            watchedMetricYears = decoded
+            updateWatchedMetricYears(decoded)
         }
     }
     
@@ -92,11 +96,10 @@ class BaseMetricManager<T: MetricYearProtocol>: ObservableObject {
             updatedWatched[cikKey] = metricYears
         }
         
-        watchedMetricYears = updatedWatched
+        updateWatchedMetricYears(updatedWatched)
         saveWatchedMetricYears()
     }
     
-    // Helper method to check if years have all required keys
     func readyYears(companyCik: Int, facts: CompanyFacts, requiredKeys: Set<String>) -> [Int] {
         guard let watched = watchedMetricYears[String(companyCik)],
               let usGaap = facts.facts.usGaap else { return [] }
@@ -110,7 +113,6 @@ class BaseMetricManager<T: MetricYearProtocol>: ObservableObject {
         }.sorted(by: >)
     }
     
-    // Helper to get a datapoint value for a given year and key
     func getMetricValue(companyCik: Int, year: Int, key: String, facts: CompanyFacts) -> Double? {
         guard let usGaap = facts.facts.usGaap else { return nil }
         return usGaap[key]?.units["USD"]?.first(where: { $0.fy == year && $0.isAnnual })?.val
