@@ -112,4 +112,19 @@ class ROICManager: BaseMetricManager<ROICMetricYear> {
         
         return averages
     }
+    
+    func clearMetrics(companyCik: Int) {
+        var updatedWatched = watchedMetricYears
+        let cikKey = String(companyCik)
+        updatedWatched.removeValue(forKey: cikKey)
+        updateWatchedMetricYears(updatedWatched)
+        saveWatchedMetricYears()
+        print("Cleared ROIC metrics for CIK \(companyCik)")
+    }
+    
+    func clearAllMetrics() {
+        updateWatchedMetricYears([:])
+        saveWatchedMetricYears()
+        print("Cleared all ROIC metrics")
+    }
 }

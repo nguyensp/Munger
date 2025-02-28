@@ -29,7 +29,7 @@ struct SUISavedMetricsView: View {
                 }
 
                 // ROIC Section (now in its own view with updated name)
-                SUIROICView(facts: facts)
+                //SUIROICView(facts: facts)
 
                 // No metrics saved message
                 if (userMetricsManager.watchedMetricYears[String(facts.cik)]?.isEmpty ?? true) &&

@@ -18,6 +18,7 @@ struct SUICompanyFinancialsView: View {
         case annual
         case raw
         case saved
+        case calculate
     }
     
     init(company: Company, coordinator: AppCoordinator) {
@@ -48,6 +49,7 @@ struct SUICompanyFinancialsView: View {
                         Text("By Year").tag(ViewType.annual)
                         Text("By Metric").tag(ViewType.raw)
                         Text("Saved").tag(ViewType.saved)
+                        Text("Calculate").tag(ViewType.calculate)
                     }
                     .pickerStyle(.segmented)
                     .padding(.horizontal)
@@ -59,6 +61,8 @@ struct SUICompanyFinancialsView: View {
                         SUIFullRawDataView(facts: facts)
                     case .saved:
                         SUISavedMetricsView(facts: facts)
+                    case .calculate:
+                        SUIROICView(facts: facts)
                     }
                 }
                 

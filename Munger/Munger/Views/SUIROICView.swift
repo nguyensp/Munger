@@ -10,11 +10,12 @@ import SwiftUI
 struct SUIROICView: View {
     let facts: CompanyFacts
     @EnvironmentObject var roicManager: ROICManager
-    @EnvironmentObject var userMetricsManager: UserMetricsManager // Added this
+    @EnvironmentObject var userMetricsManager: UserMetricsManager
     @State private var roicReadyYears: [Int] = []
     @State private var hasGatheredROIC = false
     @State private var roicResults: [Int: Double] = [:] // Year -> ROIC
     @State private var roicAverageResults: [Int: Double] = [:] // Period (years) -> ROIC Average
+    @State private var showingClearConfirmation = false
 
     private let roicMetricKeys = Set(["NetIncomeLoss", "Assets", "LiabilitiesCurrent"])
     private let periods = [10, 7, 5, 3, 1]
@@ -22,7 +23,7 @@ struct SUIROICView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack {
-                Text("ROIC Metrics")
+                Text("ROIC")
                     .font(.title2)
                     .fontWeight(.bold)
                 Spacer()
@@ -41,9 +42,21 @@ struct SUIROICView: View {
                         .foregroundColor(.white)
                         .cornerRadius(8)
                 }
+                Button(action: {
+                    showingClearConfirmation = true
+                }) {
+                    Text("Clear Saved")
+                        .font(.headline)
+                        .padding(.horizontal, 15)
+                        .padding(.vertical, 8)
+                        .background(Color.red)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
+                .disabled(roicManager.watchedMetricYears[String(facts.cik)]?.isEmpty ?? true)
             }
 
-            Text("Formula: Net Income / (Total Assets - Current Liabilities)")
+            Text("Return On Investment Capital: Net Income / (Total Assets - Current Liabilities)")
                 .font(.caption)
                 .foregroundColor(.gray)
                 .padding(.top, 5)
@@ -157,6 +170,20 @@ struct SUIROICView: View {
                     print("- \(metric.metricKey) (\(metric.year))")
                 }
             }
+        }
+        .alert(isPresented: $showingClearConfirmation) {
+            Alert(
+                title: Text("Clear Saved ROIC Metrics"),
+                message: Text("Are you sure you want to clear all saved ROIC metrics for this company?"),
+                primaryButton: .destructive(Text("Clear")) {
+                    roicManager.clearMetrics(companyCik: facts.cik)
+                    roicReadyYears = []
+                    hasGatheredROIC = false
+                    roicResults = [:]
+                    roicAverageResults = [:]
+                },
+                secondaryButton: .cancel()
+            )
         }
     }
     
