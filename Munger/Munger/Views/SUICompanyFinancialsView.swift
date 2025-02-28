@@ -25,7 +25,7 @@ struct SUICompanyFinancialsView: View {
         self.company = company
         self.coordinator = coordinator
         _viewModel = StateObject(wrappedValue: CompanyFinancialsViewModel(
-            companyFinancialsNetworkService: coordinator.serviceFactory.makeCompanyFinancialsNetworkService()
+            serviceCompanyFinancials: coordinator.serviceFactory.makeServiceCompanyFinancials()
         ))
     }
     

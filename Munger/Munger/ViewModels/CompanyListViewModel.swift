@@ -27,10 +27,10 @@ class CompanyListViewModel: ObservableObject {
     }
     
     private var cancellables = Set<AnyCancellable>()
-    private let centralIndexKeyNetworkService: CentralIndexKeyNetworkService
+    private let serviceCentralIndexKeys: ServiceCentralIndexKeys
     
-    init(centralIndexKeyNetworkService: CentralIndexKeyNetworkService) {
-        self.centralIndexKeyNetworkService = centralIndexKeyNetworkService
+    init(serviceCentralIndexKeys: ServiceCentralIndexKeys) {
+        self.serviceCentralIndexKeys = serviceCentralIndexKeys
     }
     
     func fetchCompanies() {
@@ -39,7 +39,7 @@ class CompanyListViewModel: ObservableObject {
         isLoading = true
         error = nil
         
-        centralIndexKeyNetworkService.getCompanyTickers()
+        serviceCentralIndexKeys.getCompanyTickers()
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 self?.isLoading = false

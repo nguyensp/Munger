@@ -24,21 +24,19 @@ struct AppCoordinator {
         self.authViewModel = serviceFactory.makeAuthenticationViewModel()
         self.watchListManager = serviceFactory.makeWatchListManager()
         self.companyListViewModel = CompanyListViewModel(
-            centralIndexKeyNetworkService: serviceFactory.makeCentralIndexKeyNetworkService()
+            serviceCentralIndexKeys: serviceFactory.makeServiceCentralIndexKeys()
         )
         self.watchListViewModel = WatchListViewModel(
             watchListManager: watchListManager,
-            networkService: serviceFactory.makeCentralIndexKeyNetworkService()
+            networkService: serviceFactory.makeServiceCentralIndexKeys()
         )
         self.aichatViewModel = AIChatViewModel(
-            chatService: serviceFactory.makeAIChatService(provider: .openai)
+            chatService: serviceFactory.makeServiceAIChat(provider: .openai)
         )
         self.companyFilingsViewModel = CompanyFilingsViewModel(
-            secFilingNetworkService: serviceFactory.makeSECFilingNetworkService()
+            serviceSECFilings: serviceFactory.makeServiceSECFilings()
         )
         
-        // Remove initialization of the original manager
-        // self.metricsWatchListManager = MetricsWatchListManager()
         
         // Initialize new managers
         self.userMetricsManager = UserMetricsManager()

@@ -1,5 +1,5 @@
 //
-//  AIChatService.swift
+//  ServiceAIChat.swift
 //  Munger
 //
 //  Created by Paul Nguyen on 2/6/25.
@@ -56,7 +56,7 @@ struct ChatResponse: Codable {
     }
 }
 
-public final class AIChatService {
+public final class ServiceAIChat {
     private let requestDispatcher: RequestDispatcher
     private var provider: AIProvider
     private var messages: [Message] = []

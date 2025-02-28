@@ -16,7 +16,7 @@ class WatchListViewModel: ObservableObject {
     
     private var cancellables = Set<AnyCancellable>()
     private let watchListManager: WatchListManager
-    private let networkService: CentralIndexKeyNetworkService
+    private let networkService: ServiceCentralIndexKeys
     
     var filteredCompanies: [Company] {
         if searchText.isEmpty {
@@ -30,7 +30,7 @@ class WatchListViewModel: ObservableObject {
     }
     
     init(watchListManager: WatchListManager = WatchListManager(),
-         networkService: CentralIndexKeyNetworkService) {
+         networkService: ServiceCentralIndexKeys) {
         self.watchListManager = watchListManager
         self.networkService = networkService
     }

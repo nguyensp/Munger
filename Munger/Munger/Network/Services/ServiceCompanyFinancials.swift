@@ -1,5 +1,5 @@
 //
-//  CompanyFinancialsNetworkService.swift
+//  ServiceCompanyFinancials.swift
 //  Munger
 //
 //  Created by Paul Nguyen on 1/31/25.
@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-public final class CompanyFinancialsNetworkService {
+public final class ServiceCompanyFinancials {
    private let requestDispatcher: RequestDispatcher
     
     init(requestDispatcher: RequestDispatcher) {

@@ -13,10 +13,10 @@ class AIChatViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: Error?
     
-    private let chatService: AIChatService
+    private let chatService: ServiceAIChat
     private var cancellables = Set<AnyCancellable>()
     
-    init(chatService: AIChatService) {
+    init(chatService: ServiceAIChat) {
         self.chatService = chatService
     }
     

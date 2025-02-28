@@ -6,18 +6,18 @@
 //
 
 protocol ServiceFactoryProtocol {
-    func makeCentralIndexKeyNetworkService() -> CentralIndexKeyNetworkService
-    func makeCompanyFinancialsNetworkService() -> CompanyFinancialsNetworkService
-    func makeAIChatService(provider: AIProvider) -> AIChatService
-    func makeAuthenticationService() -> AuthenticationService
+    func makeServiceCentralIndexKeys() -> ServiceCentralIndexKeys
+    func makeServiceCompanyFinancials() -> ServiceCompanyFinancials
+    func makeServiceAIChat(provider: AIProvider) -> ServiceAIChat
+    func makeServiceAuthentication() -> ServiceAuthentication
     @MainActor func makeAuthenticationViewModel() -> AuthenticationViewModel
     func makeWatchListManager() -> WatchListManager
-    func makeSECFilingNetworkService() -> SECFilingNetworkService
+    func makeServiceSECFilings() -> ServiceSECFilings
 }
 
 class ServiceFactory: ServiceFactoryProtocol {
     private let requestDispatcher: RequestDispatcher
-    private let authenticationService: AuthenticationService
+    private let serviceAuthentication: ServiceAuthentication
     
     init() {
         let cache = CoreDataCache(modelName: "Cache")
@@ -25,35 +25,35 @@ class ServiceFactory: ServiceFactoryProtocol {
             networkDispatcher: URLSessionCombineDispatcher(),
             cache: cache
         )
-        self.authenticationService = AuthenticationService()
+        self.serviceAuthentication = ServiceAuthentication()
     }
     
-    func makeCentralIndexKeyNetworkService() -> CentralIndexKeyNetworkService {
-        CentralIndexKeyNetworkService(requestDispatcher: requestDispatcher)
+    func makeServiceCentralIndexKeys() -> ServiceCentralIndexKeys {
+        ServiceCentralIndexKeys(requestDispatcher: requestDispatcher)
     }
     
-    func makeCompanyFinancialsNetworkService() -> CompanyFinancialsNetworkService {
-        CompanyFinancialsNetworkService(requestDispatcher: requestDispatcher)
+    func makeServiceCompanyFinancials() -> ServiceCompanyFinancials {
+        ServiceCompanyFinancials(requestDispatcher: requestDispatcher)
     }
     
-    func makeAIChatService(provider: AIProvider = .openai) -> AIChatService {
-        AIChatService(requestDispatcher: requestDispatcher, provider: provider)
+    func makeServiceAIChat(provider: AIProvider = .openai) -> ServiceAIChat {
+        ServiceAIChat(requestDispatcher: requestDispatcher, provider: provider)
     }
     
-    func makeAuthenticationService() -> AuthenticationService {
-        authenticationService
+    func makeServiceAuthentication() -> ServiceAuthentication {
+        serviceAuthentication
     }
     
     @MainActor
     func makeAuthenticationViewModel() -> AuthenticationViewModel {
-        AuthenticationViewModel(authService: authenticationService)
+        AuthenticationViewModel(authService: serviceAuthentication)
     }
     
     func makeWatchListManager() -> WatchListManager {
         WatchListManager()
     }
     
-    func makeSECFilingNetworkService() -> SECFilingNetworkService {
-        return SECFilingNetworkService(requestDispatcher: requestDispatcher)
+    func makeServiceSECFilings() -> ServiceSECFilings {
+        return ServiceSECFilings(requestDispatcher: requestDispatcher)
     }
 }

@@ -1,5 +1,5 @@
 //
-//  AuthenticationService.swift
+//  ServiceAuthentication.swift
 //  Munger
 //
 //  Created by Paul Nguyen on 2/13/25.
@@ -8,7 +8,7 @@
 import FirebaseAuth
 import Foundation
 
-public final class AuthenticationService {
+public final class ServiceAuthentication {
     func getCurrentUser() -> User? {
         return Auth.auth().currentUser
     }

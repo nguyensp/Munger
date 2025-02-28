@@ -1,5 +1,5 @@
 //
-//  SECFilingNetworkService.swift
+//  ServiceSECFilings.swift
 //  Munger
 //
 //  Created by Paul Nguyen on 2/10/25.
@@ -22,7 +22,7 @@ struct Filing {
     let description: String
 }
 
-public final class SECFilingNetworkService {
+public final class ServiceSECFilings {
     private let requestDispatcher: RequestDispatcher
     
     init(requestDispatcher: RequestDispatcher) {

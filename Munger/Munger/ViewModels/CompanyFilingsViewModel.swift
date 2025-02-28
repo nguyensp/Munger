@@ -16,10 +16,10 @@ class CompanyFilingsViewModel: ObservableObject {
     @Published var error: Error?
     
     private var cancellables = Set<AnyCancellable>()
-    private let secFilingNetworkService: SECFilingNetworkService
+    private let serviceSECFilings: ServiceSECFilings
     
-    init(secFilingNetworkService: SECFilingNetworkService) {
-        self.secFilingNetworkService = secFilingNetworkService
+    init(serviceSECFilings: ServiceSECFilings) {
+        self.serviceSECFilings = serviceSECFilings
     }
     
     func fetchFilings(cik: Int) {
@@ -28,7 +28,7 @@ class CompanyFilingsViewModel: ObservableObject {
         isLoading = true
         error = nil
         
-        secFilingNetworkService.getFilings(cik: cik)
+        serviceSECFilings.getFilings(cik: cik)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 self?.isLoading = false
@@ -50,7 +50,7 @@ class CompanyFilingsViewModel: ObservableObject {
         selectedFiling = filing
         pdfData = nil
         
-        secFilingNetworkService.getFilingPDF(url: filing.documentUrl)
+        serviceSECFilings.getFilingPDF(url: filing.documentUrl)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 self?.isLoading = false

@@ -16,9 +16,9 @@ class AuthenticationViewModel: ObservableObject {
     @Published var isAuthenticated = false
     @Published var error: Error?
     
-    private let authService: AuthenticationService
+    private let authService: ServiceAuthentication
     
-    init(authService: AuthenticationService) {
+    init(authService: ServiceAuthentication) {
         self.authService = authService
         self.user = authService.getCurrentUser()
         self.isAuthenticated = user != nil

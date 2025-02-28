@@ -15,10 +15,10 @@ class CompanyFinancialsViewModel: ObservableObject {
     @Published var error: Error?
     
     private var cancellables = Set<AnyCancellable>()
-    private let companyFinancialsNetworkService: CompanyFinancialsNetworkService
+    private let serviceCompanyFinancials: ServiceCompanyFinancials
     
-    init(companyFinancialsNetworkService: CompanyFinancialsNetworkService) {
-        self.companyFinancialsNetworkService = companyFinancialsNetworkService
+    init(serviceCompanyFinancials: ServiceCompanyFinancials) {
+        self.serviceCompanyFinancials = serviceCompanyFinancials
     }
     
     func fetchCompanyFinancials(cik: Int) {
@@ -27,7 +27,7 @@ class CompanyFinancialsViewModel: ObservableObject {
         isLoading = true
         error = nil
         
-        companyFinancialsNetworkService.getCompanyFinancials(cik: cik)
+        serviceCompanyFinancials.getCompanyFinancials(cik: cik)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 switch completion {

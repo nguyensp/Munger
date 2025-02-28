@@ -1,5 +1,5 @@
 //
-//  CentralIndexKeyNetworkService.swift
+//  ServiceCentralIndexKeys.swift
 //  Munger
 //
 //  Created by Paul Nguyen on 1/30/25.
@@ -8,8 +8,8 @@
 import Foundation
 import Combine
 
-/// `CentralIndexKeyNetworkService` retrieves all companies that have a CIK keys available
-public final class CentralIndexKeyNetworkService {
+/// `ServiceCentralIndexKeys` retrieves all companies that have a CIK keys available
+public final class ServiceCentralIndexKeys {
     private let requestDispatcher: RequestDispatcher
     
     private let baseURL: String = "https://www.sec.gov/files/company_tickers_exchange.json"
