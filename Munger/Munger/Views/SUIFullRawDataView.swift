@@ -11,7 +11,7 @@ struct SUIFullRawDataView: View {
     let facts: CompanyFacts
     @State private var searchText = ""
     @State private var expandedMetrics: Set<String> = []
-    @EnvironmentObject var metricsWatchListManager: MetricsWatchListManager
+    @EnvironmentObject var roicManager: ROICManager
 
     var body: some View {
         ScrollView {
@@ -78,7 +78,7 @@ struct MetricFullSectionView: View {
     let metricKey: String
     let metricData: MetricData
     let companyCik: Int // Add this
-    @EnvironmentObject var metricsWatchListManager: MetricsWatchListManager // Add this
+    @EnvironmentObject var roicManager: ROICManager // Add this
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -110,7 +110,7 @@ struct UnitSectionView: View {
     let dataPoints: [DataPoint]
     let metricKey: String // Add this
     let companyCik: Int // Add this
-    @EnvironmentObject var metricsWatchListManager: MetricsWatchListManager // Add this
+    @EnvironmentObject var roicManager: ROICManager // Add this
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -124,13 +124,13 @@ struct UnitSectionView: View {
                 let dataPoint = uniqueDataPoints[index]
                 HStack {
                     Button(action: {
-                        metricsWatchListManager.toggleMetricYear(
+                        roicManager.toggleMetricYear(
                             companyCik: companyCik,
                             metricKey: metricKey,
                             year: dataPoint.fy
                         )
                     }) {
-                        Image(systemName: metricsWatchListManager.isWatched(companyCik: companyCik, metricKey: metricKey, year: dataPoint.fy) ? "star.fill" : "star")
+                        Image(systemName: roicManager.isWatched(companyCik: companyCik, metricKey: metricKey, year: dataPoint.fy) ? "star.fill" : "star")
                             .foregroundColor(.yellow)
                     }
                     Text(" \(formatYear(dataPoint.fy))")

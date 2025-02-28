@@ -17,7 +17,7 @@ struct SUICompanyFinancialsView: View {
     enum ViewType {
         case annual
         case raw
-        case saved // Add this
+        case saved
     }
     
     init(company: Company, coordinator: AppCoordinator) {
@@ -59,6 +59,11 @@ struct SUICompanyFinancialsView: View {
                         SUIFullRawDataView(facts: facts)
                     case .saved:
                         SUISavedMetricsView(facts: facts)
+                            .environmentObject(coordinator.epsGrowthManager)
+                            .environmentObject(coordinator.epsGrowthManager)
+                            .environmentObject(coordinator.salesGrowthManager)
+                            .environmentObject(coordinator.equityGrowthManager)
+                            .environmentObject(coordinator.freeCashFlowManager)
                     }
                 }
                 
@@ -72,6 +77,6 @@ struct SUICompanyFinancialsView: View {
         .onAppear {
             viewModel.fetchCompanyFinancials(cik: company.cik)
         }
-        .environmentObject(coordinator.metricsWatchListManager) // Pass the manager
+        .environmentObject(coordinator.roicManager) // Pass the manager
     }
 }

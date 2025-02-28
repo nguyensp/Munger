@@ -11,7 +11,7 @@ struct SUIAnnualDataView: View {
     let facts: CompanyFacts
     @State private var searchText = ""
     @State private var selectedYear: Int?
-    @EnvironmentObject var metricsWatchListManager: MetricsWatchListManager
+    @EnvironmentObject var roicManager: ROICManager
     
     private var years: [Int] {
         guard let usGaap = facts.facts.usGaap else { return [] }
@@ -87,13 +87,13 @@ struct SUIAnnualDataView: View {
                                 )
                                 Spacer()
                                 Button(action: {
-                                    metricsWatchListManager.toggleMetricYear(
+                                    roicManager.toggleMetricYear(
                                         companyCik: facts.cik,
                                         metricKey: metric.key,
                                         year: selectedYear // Pass the selected year
                                     )
                                 }) {
-                                    Image(systemName: metricsWatchListManager.isWatched(companyCik: facts.cik, metricKey: metric.key, year: selectedYear) ? "star.fill" : "star")
+                                    Image(systemName: roicManager.isWatched(companyCik: facts.cik, metricKey: metric.key, year: selectedYear) ? "star.fill" : "star")
                                         .foregroundColor(.yellow)
                                 }
                             }

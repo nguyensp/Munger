@@ -5,6 +5,7 @@
 //  Created by Paul Nguyen on 2/18/25.
 //
 
+/// Protocol used for easier testing
 protocol ServiceFactoryProtocol {
     func makeCentralIndexKeyNetworkService() -> CentralIndexKeyNetworkService
     func makeCompanyFinancialsNetworkService() -> CompanyFinancialsNetworkService
@@ -15,6 +16,7 @@ protocol ServiceFactoryProtocol {
     func makeSECFilingNetworkService() -> SECFilingNetworkService
 }
 
+/// Centralizes `RequestDispatcher` dependeny injections
 class ServiceFactory: ServiceFactoryProtocol {
     private let requestDispatcher: RequestDispatcher
     private let authenticationService: AuthenticationService
