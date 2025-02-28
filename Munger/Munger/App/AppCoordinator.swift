@@ -9,7 +9,14 @@ struct AppCoordinator {
     let serviceFactory: ServiceFactoryProtocol
     let authViewModel: AuthenticationViewModel
     let watchListManager: WatchListManager
-    let metricsWatchListManager: MetricsWatchListManager
+    
+    // Keep new specialized managers
+    let userMetricsManager: UserMetricsManager
+    let roicManager: ROICManager
+    
+    // Remove the original manager
+    // let metricsWatchListManager: MetricsWatchListManager
+    
     let companyListViewModel: CompanyListViewModel
     let watchListViewModel: WatchListViewModel
     let chatViewModel: ChatViewModel
@@ -28,11 +35,23 @@ struct AppCoordinator {
             networkService: serviceFactory.makeCentralIndexKeyNetworkService()
         )
         self.chatViewModel = ChatViewModel(
-            chatService: serviceFactory.makeAIChatService(provider: .openai) // Specify provider
+            chatService: serviceFactory.makeAIChatService(provider: .openai)
         )
         self.companyFilingsViewModel = CompanyFilingsViewModel(
             secFilingNetworkService: serviceFactory.makeSECFilingNetworkService()
         )
-        self.metricsWatchListManager = MetricsWatchListManager()
+        
+        // Remove initialization of the original manager
+        // self.metricsWatchListManager = MetricsWatchListManager()
+        
+        // Initialize new managers
+        self.userMetricsManager = UserMetricsManager()
+        self.roicManager = ROICManager()
+        
+        // The migration can be kept for users upgrading from earlier versions
+        DataMigration.migrateIfNeeded(
+            userMetricsManager: userMetricsManager,
+            roicManager: roicManager
+        )
     }
 }

@@ -17,7 +17,7 @@ struct SUICompanyFinancialsView: View {
     enum ViewType {
         case annual
         case raw
-        case saved // Add this
+        case saved
     }
     
     init(company: Company, coordinator: AppCoordinator) {
@@ -72,6 +72,8 @@ struct SUICompanyFinancialsView: View {
         .onAppear {
             viewModel.fetchCompanyFinancials(cik: company.cik)
         }
-        .environmentObject(coordinator.metricsWatchListManager) // Pass the manager
+        // Add new managers to the environment
+        .environmentObject(coordinator.userMetricsManager)
+        .environmentObject(coordinator.roicManager)
     }
 }

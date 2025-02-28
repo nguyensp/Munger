@@ -22,7 +22,10 @@ struct SUIRootView: View {
                 ContentView(coordinator: coordinator)
                     .environmentObject(coordinator.authViewModel)
                     .environmentObject(coordinator.watchListManager)
-                    .environmentObject(coordinator.metricsWatchListManager)
+                    // Remove old manager reference
+                    // .environmentObject(coordinator.metricsWatchListManager)
+                    .environmentObject(coordinator.userMetricsManager)
+                    .environmentObject(coordinator.roicManager)
             } else {
                 SUIAuthenticationView()
                     .environmentObject(coordinator.authViewModel)

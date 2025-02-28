@@ -11,7 +11,12 @@ struct SUIFullRawDataView: View {
     let facts: CompanyFacts
     @State private var searchText = ""
     @State private var expandedMetrics: Set<String> = []
-    @EnvironmentObject var metricsWatchListManager: MetricsWatchListManager
+    
+    // Use the new managers
+    @EnvironmentObject var userMetricsManager: UserMetricsManager
+    @EnvironmentObject var roicManager: ROICManager
+
+    private let roicMetricKeys = Set(["NetIncomeLoss", "Assets", "LiabilitiesCurrent"])
 
     var body: some View {
         ScrollView {
@@ -51,7 +56,8 @@ struct SUIFullRawDataView: View {
                                 MetricFullSectionView(
                                     metricKey: metricKey,
                                     metricData: metricData,
-                                    companyCik: facts.cik // Pass CIK
+                                    companyCik: facts.cik,
+                                    roicMetricKeys: roicMetricKeys
                                 )
                             } label: {
                                 Text(metricData.label ?? metricKey)
@@ -77,8 +83,12 @@ struct SUIFullRawDataView: View {
 struct MetricFullSectionView: View {
     let metricKey: String
     let metricData: MetricData
-    let companyCik: Int // Add this
-    @EnvironmentObject var metricsWatchListManager: MetricsWatchListManager // Add this
+    let companyCik: Int
+    let roicMetricKeys: Set<String>
+    
+    // Use the new managers
+    @EnvironmentObject var userMetricsManager: UserMetricsManager
+    @EnvironmentObject var roicManager: ROICManager
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -90,12 +100,24 @@ struct MetricFullSectionView: View {
 
             ForEach(Array(metricData.units.keys.sorted()), id: \.self) { unit in
                 if let dataPoints = metricData.units[unit]?.filter({ $0.isAnnual }) {
-                    UnitSectionView(
-                        unit: unit,
-                        dataPoints: dataPoints,
-                        metricKey: metricKey, // Pass these
-                        companyCik: companyCik
-                    )
+                    // Use the appropriate manager based on the metric key
+                    if roicMetricKeys.contains(metricKey) {
+                        UnitSectionView<ROICMetricYear>(
+                            unit: unit,
+                            dataPoints: dataPoints,
+                            metricKey: metricKey,
+                            companyCik: companyCik,
+                            manager: roicManager
+                        )
+                    } else {
+                        UnitSectionView<UserMetricYear>(
+                            unit: unit,
+                            dataPoints: dataPoints,
+                            metricKey: metricKey,
+                            companyCik: companyCik,
+                            manager: userMetricsManager
+                        )
+                    }
                 }
             }
         }
@@ -105,13 +127,30 @@ struct MetricFullSectionView: View {
     }
 }
 
-struct UnitSectionView: View {
+// Generic UnitSectionView that works with any MetricManager
+struct UnitSectionView<T: MetricYearProtocol>: View {
     let unit: String
     let dataPoints: [DataPoint]
-    let metricKey: String // Add this
-    let companyCik: Int // Add this
-    @EnvironmentObject var metricsWatchListManager: MetricsWatchListManager // Add this
-
+    let metricKey: String
+    let companyCik: Int
+    
+    // The specific manager to use for this section
+    @ObservedObject var manager: BaseMetricManager<T>
+    
+    init(
+        unit: String,
+        dataPoints: [DataPoint],
+        metricKey: String,
+        companyCik: Int,
+        manager: BaseMetricManager<T>
+    ) {
+        self.unit = unit
+        self.dataPoints = dataPoints
+        self.metricKey = metricKey
+        self.companyCik = companyCik
+        self.manager = manager
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Unit: \(unit)")
@@ -124,13 +163,13 @@ struct UnitSectionView: View {
                 let dataPoint = uniqueDataPoints[index]
                 HStack {
                     Button(action: {
-                        metricsWatchListManager.toggleMetricYear(
+                        manager.toggleMetricYear(
                             companyCik: companyCik,
                             metricKey: metricKey,
                             year: dataPoint.fy
                         )
                     }) {
-                        Image(systemName: metricsWatchListManager.isWatched(companyCik: companyCik, metricKey: metricKey, year: dataPoint.fy) ? "star.fill" : "star")
+                        Image(systemName: manager.isWatched(companyCik: companyCik, metricKey: metricKey, year: dataPoint.fy) ? "star.fill" : "star")
                             .foregroundColor(.yellow)
                     }
                     Text(" \(formatYear(dataPoint.fy))")

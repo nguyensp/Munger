@@ -9,7 +9,8 @@ import SwiftUI
 
 struct SUISavedMetricsView: View {
     let facts: CompanyFacts
-    @EnvironmentObject var metricsWatchListManager: MetricsWatchListManager
+    @EnvironmentObject var userMetricsManager: UserMetricsManager
+    @EnvironmentObject var roicManager: ROICManager
     @State private var roicReadyYears: [Int] = []
     @State private var hasGatheredROIC = false
     @State private var roicResults: [Int: Double] = [:] // Year -> ROIC
@@ -20,21 +21,18 @@ struct SUISavedMetricsView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 30) { // Increased spacing for better readability
+            VStack(alignment: .leading, spacing: 30) {
                 // User Saved Metrics
-                if let watched = metricsWatchListManager.watchedMetricYears[String(facts.cik)], !watched.isEmpty {
-                    let userWatched = watched.filter { !roicMetricKeys.contains($0.metricKey) }
-                    if !userWatched.isEmpty {
-                        VStack(alignment: .leading, spacing: 15) {
-                            Text("User Saved Metrics")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                            SavedMetricsSection(metricYears: userWatched)
-                        }
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(12) // Slightly larger corner radius for softer edges
+                if let watched = userMetricsManager.watchedMetricYears[String(facts.cik)], !watched.isEmpty {
+                    VStack(alignment: .leading, spacing: 15) {
+                        Text("User Saved Metrics")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        SavedMetricsSection(metricYears: watched, manager: userMetricsManager)
                     }
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(12)
                 }
 
                 // ROIC Section
@@ -45,8 +43,8 @@ struct SUISavedMetricsView: View {
                             .fontWeight(.bold)
                         Spacer()
                         Button(action: {
-                            metricsWatchListManager.gatherROICMetrics(companyCik: facts.cik, facts: facts)
-                            roicReadyYears = metricsWatchListManager.roicReadyYears(companyCik: facts.cik, facts: facts)
+                            roicManager.gatherROICMetrics(companyCik: facts.cik, facts: facts)
+                            roicReadyYears = roicManager.roicReadyYears(companyCik: facts.cik, facts: facts)
                             hasGatheredROIC = true
                             roicResults = [:] // Reset results when gathering anew
                             roicAverageResults = [:] // Reset average results
@@ -67,15 +65,12 @@ struct SUISavedMetricsView: View {
                         .foregroundColor(.gray)
                         .padding(.top, 5)
 
-                    if let watched = metricsWatchListManager.watchedMetricYears[String(facts.cik)] {
-                        let roicWatched = watched.filter { roicMetricKeys.contains($0.metricKey) }
-                        if !roicWatched.isEmpty {
-                            SavedMetricsSection(metricYears: roicWatched)
-                        } else if hasGatheredROIC {
-                            Text("No ROIC metrics available")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                        }
+                    if let watched = roicManager.watchedMetricYears[String(facts.cik)], !watched.isEmpty {
+                        SavedMetricsSection(metricYears: watched, manager: roicManager)
+                    } else if hasGatheredROIC {
+                        Text("No ROIC metrics available")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
                     }
 
                     // Yearly ROIC Calculations (only after gathering, no chevron)
@@ -85,7 +80,7 @@ struct SUISavedMetricsView: View {
                                 .font(.headline)
                             ForEach(roicReadyYears, id: \.self) { year in
                                 Button(action: {
-                                    if let roic = metricsWatchListManager.calculateROICForYear(
+                                    if let roic = roicManager.calculateROICForYear(
                                         companyCik: facts.cik,
                                         year: year,
                                         facts: facts
@@ -106,19 +101,19 @@ struct SUISavedMetricsView: View {
                                                 .foregroundColor(.blue)
                                         }
                                     }
-                                    .padding(.vertical, 8) // Increased vertical padding
-                                    .padding(.horizontal, 12) // Increased horizontal padding
+                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, 12)
                                     .background(Color.green.opacity(0.2))
-                                    .cornerRadius(8) // Slightly larger corner radius
+                                    .cornerRadius(8)
                                 }
                             }
                         }
                         .padding(.top, 15)
                     }
 
-                    // ROIC Averages (only after gathering, no chevron)
+                    // ROIC Averages (only after gathering)
                     if hasGatheredROIC {
-                        let availableYears = metricsWatchListManager.roicReadyYears(companyCik: facts.cik, facts: facts)
+                        let availableYears = roicManager.roicReadyYears(companyCik: facts.cik, facts: facts)
                         let yearsCount = availableYears.count
                         let validPeriods = periods.filter { $0 <= yearsCount }
                         
@@ -128,7 +123,7 @@ struct SUISavedMetricsView: View {
                                     .font(.headline)
                                 ForEach(validPeriods, id: \.self) { period in
                                     Button(action: {
-                                        if let roicAvg = metricsWatchListManager.calculateROICAverages(
+                                        if let roicAvg = roicManager.calculateROICAverages(
                                             companyCik: facts.cik,
                                             facts: facts,
                                             periods: [period]
@@ -149,10 +144,10 @@ struct SUISavedMetricsView: View {
                                                     .foregroundColor(.blue)
                                             }
                                         }
-                                        .padding(.vertical, 8) // Increased vertical padding
-                                        .padding(.horizontal, 12) // Increased horizontal padding
+                                        .padding(.vertical, 8)
+                                        .padding(.horizontal, 12)
                                         .background(Color.green.opacity(0.2))
-                                        .cornerRadius(8) // Slightly larger corner radius
+                                        .cornerRadius(8)
                                     }
                                 }
                             }
@@ -167,9 +162,11 @@ struct SUISavedMetricsView: View {
                 }
                 .padding()
                 .background(Color(.systemGray6))
-                .cornerRadius(12) // Larger corner radius for softer edges
+                .cornerRadius(12)
 
-                if metricsWatchListManager.watchedMetricYears[String(facts.cik)]?.isEmpty ?? true {
+                // No metrics saved message
+                if (userMetricsManager.watchedMetricYears[String(facts.cik)]?.isEmpty ?? true) &&
+                   (roicManager.watchedMetricYears[String(facts.cik)]?.isEmpty ?? true) {
                     Text("No metrics saved yet")
                         .font(.subheadline)
                         .foregroundColor(.gray)
@@ -181,7 +178,8 @@ struct SUISavedMetricsView: View {
         }
     }
 
-    private func SavedMetricsSection(metricYears: Set<MetricsWatchListManager.MetricYear>) -> some View {
+    // Generic SavedMetricsSection that works with any manager
+    private func SavedMetricsSection<T: MetricYearProtocol>(metricYears: Set<T>, manager: BaseMetricManager<T>) -> some View {
         let groupedByMetric = Dictionary(grouping: metricYears, by: { $0.metricKey })
         return ForEach(groupedByMetric.keys.sorted(), id: \.self) { metricKey in
             if let metricData = facts.facts.usGaap?[metricKey] {
@@ -197,11 +195,12 @@ struct SUISavedMetricsView: View {
                                 let savedYears = groupedByMetric[metricKey]?.map { $0.year } ?? []
                                 let filteredDataPoints = dataPoints.filter { savedYears.contains($0.fy) }
                                 if !filteredDataPoints.isEmpty {
-                                    UnitSectionView(
+                                    UnitSectionView<T>(
                                         unit: unit,
                                         dataPoints: filteredDataPoints,
                                         metricKey: metricKey,
-                                        companyCik: facts.cik
+                                        companyCik: facts.cik,
+                                        manager: manager
                                     )
                                 }
                             }
@@ -214,7 +213,7 @@ struct SUISavedMetricsView: View {
                     Text(metricData.label ?? metricKey)
                         .font(.headline)
                         .foregroundColor(.green)
-                        .padding(.vertical, 8) // Increased vertical padding
+                        .padding(.vertical, 8)
                 }
                 .padding()
                 .background(Color(.systemGray6))
@@ -225,6 +224,6 @@ struct SUISavedMetricsView: View {
     
     // Format fiscal year to remove commas (e.g., "2,024" -> "2024")
     private func formatYear(_ year: Int) -> String {
-        String(year) // Simply converts the Int to a String, removing any formatting like commas
+        String(year)
     }
 }

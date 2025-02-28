@@ -11,7 +11,13 @@ struct SUIAnnualDataView: View {
     let facts: CompanyFacts
     @State private var searchText = ""
     @State private var selectedYear: Int?
-    @EnvironmentObject var metricsWatchListManager: MetricsWatchListManager
+    
+    // Replace old manager with the new ones
+    @EnvironmentObject var userMetricsManager: UserMetricsManager
+    @EnvironmentObject var roicManager: ROICManager
+    
+    // Define ROIC metric keys
+    private let roicMetricKeys = Set(["NetIncomeLoss", "Assets", "LiabilitiesCurrent"])
     
     private var years: [Int] {
         guard let usGaap = facts.facts.usGaap else { return [] }
@@ -42,6 +48,24 @@ struct SUIAnnualDataView: View {
             return (key, value, unit, metricData.label ?? key)
         }
         .sorted { $0.label < $1.label }
+    }
+    
+    // Function to check if a metric is watched, using the appropriate manager
+    private func isMetricWatched(metricKey: String, year: Int) -> Bool {
+        if roicMetricKeys.contains(metricKey) {
+            return roicManager.isWatched(companyCik: facts.cik, metricKey: metricKey, year: year)
+        } else {
+            return userMetricsManager.isWatched(companyCik: facts.cik, metricKey: metricKey, year: year)
+        }
+    }
+    
+    // Function to toggle metric watch status, using the appropriate manager
+    private func toggleMetricWatchStatus(metricKey: String, year: Int) {
+        if roicMetricKeys.contains(metricKey) {
+            roicManager.toggleMetricYear(companyCik: facts.cik, metricKey: metricKey, year: year)
+        } else {
+            userMetricsManager.toggleMetricYear(companyCik: facts.cik, metricKey: metricKey, year: year)
+        }
     }
     
     var body: some View {
@@ -87,13 +111,12 @@ struct SUIAnnualDataView: View {
                                 )
                                 Spacer()
                                 Button(action: {
-                                    metricsWatchListManager.toggleMetricYear(
-                                        companyCik: facts.cik,
+                                    toggleMetricWatchStatus(
                                         metricKey: metric.key,
-                                        year: selectedYear // Pass the selected year
+                                        year: selectedYear
                                     )
                                 }) {
-                                    Image(systemName: metricsWatchListManager.isWatched(companyCik: facts.cik, metricKey: metric.key, year: selectedYear) ? "star.fill" : "star")
+                                    Image(systemName: isMetricWatched(metricKey: metric.key, year: selectedYear) ? "star.fill" : "star")
                                         .foregroundColor(.yellow)
                                 }
                             }
