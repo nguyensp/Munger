@@ -7,12 +7,12 @@
 
 struct AppCoordinator {
     let serviceFactory: ServiceFactoryProtocol
-    let authViewModel: AuthenticationViewModel
-    let watchListManager: WatchListManager
     
+    let watchListManager: WatchListManager
     let userMetricsManager: UserMetricsManager
     let roicManager: ROICManager
     
+    let authViewModel: AuthenticationViewModel
     let companyListViewModel: CompanyListViewModel
     let watchListViewModel: WatchListViewModel
     let aichatViewModel: AIChatViewModel
@@ -21,8 +21,12 @@ struct AppCoordinator {
     @MainActor
     init(serviceFactory: ServiceFactoryProtocol) {
         self.serviceFactory = serviceFactory
-        self.authViewModel = serviceFactory.makeAuthenticationViewModel()
+        
         self.watchListManager = serviceFactory.makeWatchListManager()
+        self.userMetricsManager = UserMetricsManager()
+        self.roicManager = ROICManager()
+        
+        self.authViewModel = AuthenticationViewModel()
         self.companyListViewModel = CompanyListViewModel(
             serviceCentralIndexKeys: serviceFactory.makeServiceCentralIndexKeys()
         )
@@ -37,12 +41,6 @@ struct AppCoordinator {
             serviceSECFilings: serviceFactory.makeServiceSECFilings()
         )
         
-        
-        // Initialize new managers
-        self.userMetricsManager = UserMetricsManager()
-        self.roicManager = ROICManager()
-        
-        // The migration can be kept for users upgrading from earlier versions
         DataMigration.migrateIfNeeded(
             userMetricsManager: userMetricsManager,
             roicManager: roicManager

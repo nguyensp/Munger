@@ -16,17 +16,14 @@ class AuthenticationViewModel: ObservableObject {
     @Published var isAuthenticated = false
     @Published var error: Error?
     
-    private let authService: ServiceAuthentication
-    
-    init(authService: ServiceAuthentication) {
-        self.authService = authService
-        self.user = authService.getCurrentUser()
+    init() {
+        self.user = Auth.auth().currentUser
         self.isAuthenticated = user != nil
         setupAuthStateListener()
     }
     
     private func setupAuthStateListener() {
-        authService.setupAuthStateListener { [weak self] user in
+        Auth.auth().addStateDidChangeListener { [weak self] _, user in
             self?.user = user
             self?.isAuthenticated = user != nil
         }
@@ -35,7 +32,8 @@ class AuthenticationViewModel: ObservableObject {
     func signIn(email: String, password: String) {
         Task {
             do {
-                user = try await authService.signIn(email: email, password: password)
+                let result = try await Auth.auth().signIn(withEmail: email, password: password)
+                user = result.user
                 isAuthenticated = true
                 error = nil
                 try KeychainManager.saveCredentials(email: email, password: password)
@@ -68,7 +66,8 @@ class AuthenticationViewModel: ObservableObject {
                         print("❌ No credentials found")
                         return
                     }
-                    user = try await authService.signIn(email: email, password: password)
+                    let result = try await Auth.auth().signIn(withEmail: email, password: password)
+                    user = result.user
                     isAuthenticated = true
                     error = nil
                     print("✅ Face ID sign-in succeeded")
@@ -85,7 +84,8 @@ class AuthenticationViewModel: ObservableObject {
     func signUp(email: String, password: String) {
         Task {
             do {
-                user = try await authService.signUp(email: email, password: password)
+                let result = try await Auth.auth().createUser(withEmail: email, password: password)
+                user = result.user
                 isAuthenticated = true
                 error = nil
             } catch {
@@ -97,7 +97,7 @@ class AuthenticationViewModel: ObservableObject {
     
     func signOut() {
         do {
-            try authService.signOut()
+            try Auth.auth().signOut()
             user = nil
             isAuthenticated = false
             error = nil
@@ -109,7 +109,7 @@ class AuthenticationViewModel: ObservableObject {
     func resetPassword(email: String) {
         Task {
             do {
-                try await authService.sendPasswordReset(email: email)
+                try await Auth.auth().sendPasswordReset(withEmail: email)
                 // You might want to show a success message
             } catch {
                 self.error = error

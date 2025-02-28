@@ -9,15 +9,12 @@ protocol ServiceFactoryProtocol {
     func makeServiceCentralIndexKeys() -> ServiceCentralIndexKeys
     func makeServiceCompanyFinancials() -> ServiceCompanyFinancials
     func makeServiceAIChat(provider: AIProvider) -> ServiceAIChat
-    func makeServiceAuthentication() -> ServiceAuthentication
-    @MainActor func makeAuthenticationViewModel() -> AuthenticationViewModel
-    func makeWatchListManager() -> WatchListManager
     func makeServiceSECFilings() -> ServiceSECFilings
+    func makeWatchListManager() -> WatchListManager
 }
 
 class ServiceFactory: ServiceFactoryProtocol {
     private let requestDispatcher: RequestDispatcher
-    private let serviceAuthentication: ServiceAuthentication
     
     init() {
         let cache = CoreDataCache(modelName: "Cache")
@@ -25,7 +22,6 @@ class ServiceFactory: ServiceFactoryProtocol {
             networkDispatcher: URLSessionCombineDispatcher(),
             cache: cache
         )
-        self.serviceAuthentication = ServiceAuthentication()
     }
     
     func makeServiceCentralIndexKeys() -> ServiceCentralIndexKeys {
@@ -40,20 +36,13 @@ class ServiceFactory: ServiceFactoryProtocol {
         ServiceAIChat(requestDispatcher: requestDispatcher, provider: provider)
     }
     
-    func makeServiceAuthentication() -> ServiceAuthentication {
-        serviceAuthentication
-    }
-    
-    @MainActor
-    func makeAuthenticationViewModel() -> AuthenticationViewModel {
-        AuthenticationViewModel(authService: serviceAuthentication)
+    func makeServiceSECFilings() -> ServiceSECFilings {
+        return ServiceSECFilings(requestDispatcher: requestDispatcher)
     }
     
     func makeWatchListManager() -> WatchListManager {
         WatchListManager()
     }
     
-    func makeServiceSECFilings() -> ServiceSECFilings {
-        return ServiceSECFilings(requestDispatcher: requestDispatcher)
-    }
+    
 }

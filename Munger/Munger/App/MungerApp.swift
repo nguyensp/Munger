@@ -8,11 +8,19 @@
 import SwiftUI
 import FirebaseCore
 
+/**
+ TODO:
+- Swift Charts
+- AI Thesis Generator
+- Growth Rate Calculators
+- Additional Unit Tests
+*/
 @main
 struct MungerApp: App {
-    private let serviceFactory: ServiceFactoryProtocol = ServiceFactory()
+    private let serviceFactory: ServiceFactoryProtocol
     
     init() {
+        self.serviceFactory = ServiceFactory()
         do {
             try FirebaseApp.configure()
         } catch {
@@ -26,10 +34,4 @@ struct MungerApp: App {
         }
     }
 }
-/**
- TODO:
-- Swift Charts
-- AI Thesis Generator
-- Code Review
-- Add Unit Tests
-*/
+
