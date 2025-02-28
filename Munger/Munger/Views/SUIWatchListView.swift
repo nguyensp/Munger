@@ -65,7 +65,7 @@ private struct WatchList: View {
                     Button(role: .destructive) {
                         onRemove(company)
                     } label: {
-                        Label("Remove", systemImage: "star.slash")
+                        Label("Remove", systemImage: "eye.fill")
                     }
                 }
             }
@@ -76,7 +76,7 @@ private struct WatchList: View {
 private struct EmptyWatchListView: View {
     var body: some View {
         VStack(spacing: 20) {
-            Image(systemName: "star")
+            Image(systemName: "eye")
                 .font(.system(size: 50))
                 .foregroundColor(.gray)
             Text("No Watched Companies")

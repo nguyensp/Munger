@@ -93,7 +93,7 @@ struct CompanyCellView: View {
                     .foregroundColor(.gray)
             }
             if watchListManager.isWatched(company: company) {
-                Image(systemName: "star.fill")
+                Image(systemName: "eye.fill")
                     .foregroundColor(.yellow)
                     .padding(.leading, 4)
             }
@@ -110,7 +110,7 @@ struct SUIWatchListButton: View {
         Button {
             watchListManager.toggleWatch(company: company)
         } label: {
-            Label("Watch", systemImage: watchListManager.isWatched(company: company) ? "star.slash" : "star")
+            Label("Watch", systemImage: watchListManager.isWatched(company: company) ? "eye.fill" : "eye")
         }
     }
 }
