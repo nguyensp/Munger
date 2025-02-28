@@ -9,12 +9,12 @@ import SwiftUI
 import WebKit
 
 struct SUICompanyFilingsView: View {
-    @StateObject private var viewModel: CompanyFilingsViewModel
+    @EnvironmentObject private var viewModel: CompanyFilingsViewModel
+    
     let company: Company
     
-    init(company: Company, coordinator: AppCoordinator) {
+    init(company: Company) {
         self.company = company
-        _viewModel = StateObject(wrappedValue: coordinator.companyFilingsViewModel)
     }
     
     var body: some View {

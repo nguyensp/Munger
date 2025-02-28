@@ -19,16 +19,21 @@ struct SUIRootView: View {
     var body: some View {
         NavigationStack {
             if isAuthenticated {
-                SUIMainView(coordinator: coordinator)
-                    .environmentObject(coordinator.authViewModel)
-                    .environmentObject(coordinator.watchListManager)
-                    .environmentObject(coordinator.userMetricsManager)
-                    .environmentObject(coordinator.roicManager)
+                SUIMainView()
             } else {
                 SUIAuthenticationView()
-                    .environmentObject(coordinator.authViewModel)
             }
         }
+        .environmentObject(coordinator.authViewModel)
+        .environmentObject(coordinator.companyListViewModel)
+        .environmentObject(coordinator.watchListViewModel)
+        .environmentObject(coordinator.aichatViewModel)
+        .environmentObject(coordinator.companyFilingsViewModel)
+        .environmentObject(coordinator.companyFinancialsViewModel)
+        .environmentObject(coordinator.watchListManager)
+        .environmentObject(coordinator.userMetricsManager)
+        .environmentObject(coordinator.watchListManager)
+        .environmentObject(coordinator.roicManager)
         .onReceive(coordinator.authViewModel.$isAuthenticated) { newValue in
             isAuthenticated = newValue
         }

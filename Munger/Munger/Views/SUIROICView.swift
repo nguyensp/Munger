@@ -8,9 +8,11 @@
 import SwiftUI
 
 struct SUIROICView: View {
-    let facts: CompanyFacts
     @EnvironmentObject var roicManager: ROICManager
     @EnvironmentObject var userMetricsManager: UserMetricsManager
+    
+    let facts: CompanyFacts
+    
     @State private var roicReadyYears: [Int] = []
     @State private var hasGatheredROIC = false
     @State private var roicResults: [Int: Double] = [:] // Year -> ROIC

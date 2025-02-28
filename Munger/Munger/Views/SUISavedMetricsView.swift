@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct SUISavedMetricsView: View {
-    let facts: CompanyFacts
     @EnvironmentObject var userMetricsManager: UserMetricsManager
     @EnvironmentObject var roicManager: ROICManager
+    
+    let facts: CompanyFacts
     
     var body: some View {
         ScrollView {
@@ -27,9 +28,6 @@ struct SUISavedMetricsView: View {
                     .background(Color(.systemGray6))
                     .cornerRadius(12)
                 }
-
-                // ROIC Section (now in its own view with updated name)
-                //SUIROICView(facts: facts)
 
                 // No metrics saved message
                 if (userMetricsManager.watchedMetricYears[String(facts.cik)]?.isEmpty ?? true) &&

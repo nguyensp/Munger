@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct SUIFullRawDataView: View {
+    @EnvironmentObject var userMetricsManager: UserMetricsManager
+    @EnvironmentObject var roicManager: ROICManager
+    
     let facts: CompanyFacts
+    
     @State private var searchText = ""
     @State private var expandedMetrics: Set<String> = []
     
-    // Use the new managers
-    @EnvironmentObject var userMetricsManager: UserMetricsManager
-    @EnvironmentObject var roicManager: ROICManager
-
     private let roicMetricKeys = Set(["NetIncomeLoss", "Assets", "LiabilitiesCurrent"])
 
     var body: some View {

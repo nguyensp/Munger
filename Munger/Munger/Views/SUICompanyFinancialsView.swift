@@ -9,10 +9,10 @@ import SwiftUI
 import Combine
 
 struct SUICompanyFinancialsView: View {
-    @StateObject private var viewModel: CompanyFinancialsViewModel
+    @EnvironmentObject private var viewModel: CompanyFinancialsViewModel
+   
     @State private var selectedView = ViewType.annual
     let company: Company
-    let coordinator: AppCoordinator
     
     enum ViewType {
         case annual
@@ -21,18 +21,14 @@ struct SUICompanyFinancialsView: View {
         case calculate
     }
     
-    init(company: Company, coordinator: AppCoordinator) {
+    init(company: Company) {
         self.company = company
-        self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: CompanyFinancialsViewModel(
-            serviceCompanyFinancials: coordinator.serviceFactory.makeServiceCompanyFinancials()
-        ))
     }
     
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                NavigationLink(destination: SUICompanyFilingsView(company: company, coordinator: coordinator)) {
+                NavigationLink(destination: SUICompanyFilingsView(company: company)) {
                     HStack {
                         Image(systemName: "doc.text.fill")
                         Text("View SEC Filings")
@@ -76,8 +72,5 @@ struct SUICompanyFinancialsView: View {
         .onAppear {
             viewModel.fetchCompanyFinancials(cik: company.cik)
         }
-        // Add new managers to the environment
-        .environmentObject(coordinator.userMetricsManager)
-        .environmentObject(coordinator.roicManager)
     }
 }

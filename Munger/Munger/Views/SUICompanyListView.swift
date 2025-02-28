@@ -9,14 +9,8 @@ import SwiftUI
 import Combine
 
 struct SUICompanyListView: View {
-    @ObservedObject var viewModel: CompanyListViewModel
+    @EnvironmentObject var viewModel: CompanyListViewModel
     @EnvironmentObject var watchListManager: WatchListManager
-    private let coordinator: AppCoordinator
-    
-    init(coordinator: AppCoordinator) {
-        self.coordinator = coordinator
-        self.viewModel = coordinator.companyListViewModel
-    }
     
     var body: some View {
         VStack {
@@ -27,7 +21,7 @@ struct SUICompanyListView: View {
             } else if viewModel.companies.isEmpty {
                 EmptyStateView()
             } else {
-                CompanyList(companies: viewModel.filteredCompanies, coordinator: coordinator)
+                CompanyList(companies: viewModel.filteredCompanies)
             }
         }
         .navigationTitle("Companies Available")
@@ -52,12 +46,11 @@ struct SUICompanyListView: View {
 
 struct CompanyList: View {
     let companies: [Company]
-    let coordinator: AppCoordinator
     
     var body: some View {
         List {
             ForEach(companies, id: \.id) { company in
-                NavigationLink(destination: SUICompanyFinancialsView(company: company, coordinator: coordinator)) {
+                NavigationLink(destination: SUICompanyFinancialsView(company: company)) {
                     CompanyCellView(company: company)
                 }
                 .swipeActions(edge: .leading) {
@@ -171,6 +164,7 @@ struct ErrorView: View {
 #Preview {
     let factory = ServiceFactory()
     let coordinator = AppCoordinator(serviceFactory: factory)
-    SUICompanyListView(coordinator: coordinator)
+    SUICompanyListView()
+        .environmentObject(coordinator.companyListViewModel)
         .environmentObject(coordinator.watchListManager)
 }

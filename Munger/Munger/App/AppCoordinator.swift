@@ -14,6 +14,7 @@ struct AppCoordinator {
     
     let authViewModel: AuthenticationViewModel
     let companyListViewModel: CompanyListViewModel
+    let companyFinancialsViewModel: CompanyFinancialsViewModel
     let watchListViewModel: WatchListViewModel
     let aichatViewModel: AIChatViewModel
     let companyFilingsViewModel: CompanyFilingsViewModel
@@ -29,6 +30,8 @@ struct AppCoordinator {
         self.authViewModel = AuthenticationViewModel()
         self.companyListViewModel = CompanyListViewModel(
             serviceCentralIndexKeys: serviceFactory.makeServiceCentralIndexKeys()
+        )
+        self.companyFinancialsViewModel = CompanyFinancialsViewModel(serviceCompanyFinancials: serviceFactory.makeServiceCompanyFinancials()
         )
         self.watchListViewModel = WatchListViewModel(
             watchListManager: watchListManager,

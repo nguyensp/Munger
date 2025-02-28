@@ -8,14 +8,8 @@
 import SwiftUI
 
 struct SUIWatchListView: View {
-    @ObservedObject var viewModel: WatchListViewModel
+    @EnvironmentObject var viewModel: WatchListViewModel
     @EnvironmentObject var watchListManager: WatchListManager
-    private let coordinator: AppCoordinator  // Add coordinator
-    
-    init(coordinator: AppCoordinator) {
-        self.coordinator = coordinator
-        self.viewModel = coordinator.watchListViewModel
-    }
     
     var body: some View {
         NavigationStack {
@@ -27,8 +21,7 @@ struct SUIWatchListView: View {
                 } else {
                     WatchList(
                         companies: viewModel.filteredCompanies,
-                        onRemove: viewModel.removeFromWatchList,
-                        coordinator: coordinator
+                        onRemove: viewModel.removeFromWatchList
                     )
                 }
             }
@@ -53,12 +46,11 @@ struct SUIWatchListView: View {
 private struct WatchList: View {
     let companies: [Company]
     let onRemove: (Company) -> Void
-    let coordinator: AppCoordinator
     
     var body: some View {
         List {
             ForEach(companies, id: \.id) { company in
-                NavigationLink(destination: SUICompanyFinancialsView(company: company, coordinator: coordinator)) {
+                NavigationLink(destination: SUICompanyFinancialsView(company: company)) {
                     CompanyCellView(company: company)
                 }
                 .swipeActions {
@@ -93,6 +85,6 @@ private struct EmptyWatchListView: View {
 #Preview {
     let factory = ServiceFactory()
     let coordinator = AppCoordinator(serviceFactory: factory)
-    return SUIWatchListView(coordinator: coordinator)
+    return SUIWatchListView()
         .environmentObject(coordinator.watchListManager)
 }

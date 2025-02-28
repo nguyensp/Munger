@@ -14,6 +14,7 @@ import FirebaseCore
 - AI Thesis Generator
 - Growth Rate Calculators
 - Additional Unit Tests
+- Main View as Collection View
 */
 @main
 struct MungerApp: App {
@@ -24,7 +25,7 @@ struct MungerApp: App {
         do {
             try FirebaseApp.configure()
         } catch {
-            print("Firebase config failed: \(error)")
+            fatalError("Firebase configuration failed: \(error)")
         }
     }
     

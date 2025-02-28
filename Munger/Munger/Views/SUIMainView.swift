@@ -8,19 +8,15 @@
 import SwiftUI
 
 struct SUIMainView: View {
-    private let coordinator: AppCoordinator
-    
-    init(coordinator: AppCoordinator) {
-        self.coordinator = coordinator
-    }
+    @EnvironmentObject var authViewModel: AuthenticationViewModel
     
     var body: some View {
         TabView {
             NavigationStack {
-                SUICompanyListView(coordinator: coordinator)
+                SUICompanyListView()
                     .toolbar {
                         ToolbarItem(placement: .navigationBarTrailing) {
-                            Button(action: { coordinator.authViewModel.signOut() }) {
+                            Button(action: { authViewModel.signOut() }) {
                                 Image(systemName: "rectangle.portrait.and.arrow.right")
                             }
                         }
@@ -29,12 +25,12 @@ struct SUIMainView: View {
             .tabItem { Label("Companies", systemImage: "building.2") }
             
             NavigationStack {
-                SUIWatchListView(coordinator: coordinator)
+                SUIWatchListView()
             }
             .tabItem { Label("Watch List", systemImage: "eye.fill") }
             
             NavigationStack {
-                SUIAIChatView(viewModel: coordinator.aichatViewModel)
+                SUIAIChatView()
             }
             .tabItem { Label("AI Analysis", systemImage: "brain") }
         }

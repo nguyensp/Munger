@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SUIAIChatView: View {
-    @ObservedObject var viewModel: AIChatViewModel // Passed from coordinator
+    @EnvironmentObject var viewModel: AIChatViewModel
     @State private var messageText = ""
     @FocusState private var isTextFieldFocused: Bool
     
@@ -121,5 +121,5 @@ struct MessageBubble: View {
 #Preview {
     let factory = ServiceFactory()
     let coordinator = AppCoordinator(serviceFactory: factory)
-    SUIAIChatView(viewModel: coordinator.aichatViewModel)
+    SUIAIChatView()
 }

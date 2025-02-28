@@ -11,6 +11,7 @@ import SwiftUI
 struct SUIPasswordResetView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var authViewModel: AuthenticationViewModel
+    
     @State private var email = ""
     @State private var showAlert = false
     @State private var alertMessage = ""
