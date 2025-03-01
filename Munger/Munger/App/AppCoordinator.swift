@@ -12,6 +12,10 @@ struct AppCoordinator {
     let watchListManager: WatchListManager
     let userMetricsManager: UserMetricsManager
     let roicManager: ROICManager
+    let epsGrowthManager: EPSGrowthManager
+    let salesGrowthManager: SalesGrowthManager
+    let bookValueGrowthManager: BookValueGrowthManager
+    let fcfGrowthManager: FCFGrowthManager
     
     let authViewModel: AuthenticationViewModel
     let companyListViewModel: CompanyListViewModel
@@ -27,6 +31,10 @@ struct AppCoordinator {
         self.watchListManager = serviceFactory.makeWatchListManager()
         self.userMetricsManager = UserMetricsManager()
         self.roicManager = ROICManager()
+        self.epsGrowthManager = EPSGrowthManager()
+        self.salesGrowthManager = SalesGrowthManager()
+        self.bookValueGrowthManager = BookValueGrowthManager()
+        self.fcfGrowthManager = FCFGrowthManager()
         
         self.authViewModel = AuthenticationViewModel()
         self.companyListViewModel = CompanyListViewModel(

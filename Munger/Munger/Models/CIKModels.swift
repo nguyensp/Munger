@@ -1,5 +1,5 @@
 //
-//  CIKModel.swift
+//  CIKModels.swift
 //  Munger
 //
 //  Created by Paul Nguyen on 1/30/25.

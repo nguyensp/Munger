@@ -13,6 +13,15 @@ protocol MetricYearProtocol: Hashable, Codable {
     var year: Int { get }
 }
 
+/**
+ Base Manager Class for Margin of Safety Calculations.
+ - Return On Investment Capital,
+ - Book Value + Dividend + Buy Backs Growth,
+ - Earnings Growth,
+ - Total Reventue Growth,
+ - Operating Cash Flow Growth,
+ - Free Cash Flow Growth
+ */
 class BaseMetricManager<T: MetricYearProtocol>: ObservableObject {
     @Published private(set) var watchedMetricYears: [String: Set<T>]
     private let userDefaults: UserDefaults

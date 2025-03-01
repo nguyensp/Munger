@@ -34,6 +34,10 @@ struct SUIRootView: View {
         .environmentObject(coordinator.userMetricsManager)
         .environmentObject(coordinator.watchListManager)
         .environmentObject(coordinator.roicManager)
+        .environmentObject(coordinator.epsGrowthManager)
+        .environmentObject(coordinator.salesGrowthManager)
+        .environmentObject(coordinator.bookValueGrowthManager)
+        .environmentObject(coordinator.fcfGrowthManager)
         .onReceive(coordinator.authViewModel.$isAuthenticated) { newValue in
             isAuthenticated = newValue
         }

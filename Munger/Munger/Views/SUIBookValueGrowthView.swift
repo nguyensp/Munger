@@ -1,43 +1,42 @@
 //
-//  SUIROICView.swift
+//  SUIBookValueGrowthView.swift
 //  Munger
 //
-//  Created by Paul Nguyen on 2/27/25.
+//  Created by Paul Nguyen on 3/1/25.
 //
 
 import SwiftUI
 
-struct SUIROICView: View {
-    @EnvironmentObject var roicManager: ROICManager
+struct SUIBookValueGrowthView: View {
+    @EnvironmentObject var bookValueGrowthManager: BookValueGrowthManager
     @EnvironmentObject var userMetricsManager: UserMetricsManager
     
     let facts: CompanyFacts
     
-    @State private var roicReadyYears: [Int] = []
-    @State private var hasGatheredROIC = false
-    @State private var roicResults: [Int: Double] = [:]
-    @State private var roicAverageResults: [Int: Double] = [:]
+    @State private var bookValueReadyYears: [Int] = []
+    @State private var hasGatheredBookValue = false
+    @State private var bookValueGrowthResults: [Int: Double] = [:]
+    @State private var bookValueGrowthAverageResults: [Int: Double] = [:]
     @State private var showingClearConfirmation = false
     
-    private let roicMetricKeys = Set(["NetIncomeLoss", "Assets", "LiabilitiesCurrent"])
     private let periods = [10, 7, 5, 3, 1]
     
     var body: some View {
         ScrollView { // Added ScrollView
             VStack(alignment: .leading, spacing: 20) {
                 HStack {
-                    Text("ROIC")
+                    Text("Book Value Growth")
                         .font(.title2)
                         .fontWeight(.bold)
                     Spacer()
                     Button(action: {
-                        roicManager.gatherROICMetrics(companyCik: facts.cik, facts: facts)
-                        roicReadyYears = roicManager.roicReadyYears(companyCik: facts.cik, facts: facts)
-                        hasGatheredROIC = true
-                        roicResults = [:]
-                        roicAverageResults = [:]
+                        bookValueGrowthManager.gatherBookValueMetrics(companyCik: facts.cik, facts: facts)
+                        bookValueReadyYears = bookValueGrowthManager.bookValueReadyYears(companyCik: facts.cik, facts: facts)
+                        hasGatheredBookValue = true
+                        bookValueGrowthResults = [:]
+                        bookValueGrowthAverageResults = [:]
                     }) {
-                        Text("Gather ROIC Data")
+                        Text("Gather BV Data")
                             .font(.headline)
                             .padding(.horizontal, 15)
                             .padding(.vertical, 8)
@@ -56,70 +55,72 @@ struct SUIROICView: View {
                             .foregroundColor(.white)
                             .cornerRadius(8)
                     }
-                    .disabled(roicManager.watchedMetricYears[String(facts.cik)]?.isEmpty ?? true)
+                    .disabled(bookValueGrowthManager.watchedMetricYears[String(facts.cik)]?.isEmpty ?? true)
                 }
-
-                Text("Return On Investment Capital: Net Income / (Total Assets - Current Liabilities)")
+                
+                Text("Book Value Growth: ((Equity_end - Equity_start) / Equity_start) * 100")
                     .font(.caption)
                     .foregroundColor(.gray)
                     .padding(.top, 5)
-
-                if let watched = roicManager.watchedMetricYears[String(facts.cik)], !watched.isEmpty {
-                    SavedMetricsSection(metricYears: watched, manager: roicManager)
-                } else if hasGatheredROIC {
-                    Text("No ROIC metrics available")
+                
+                if let watched = bookValueGrowthManager.watchedMetricYears[String(facts.cik)], !watched.isEmpty {
+                    SavedMetricsSection(metricYears: watched, manager: bookValueGrowthManager)
+                } else if hasGatheredBookValue {
+                    Text("No Book Value metrics available")
                         .font(.subheadline)
                         .foregroundColor(.gray)
                 }
-
-                if hasGatheredROIC && !roicReadyYears.isEmpty {
+                
+                if hasGatheredBookValue && !bookValueReadyYears.isEmpty {
                     VStack(alignment: .leading, spacing: 15) {
-                        Text("ROIC Calculation Ready For:")
+                        Text("Book Value Growth Calculation Ready For:")
                             .font(.headline)
-                        ForEach(roicReadyYears, id: \.self) { year in
-                            Button(action: {
-                                if let roic = roicManager.calculateROICForYear(companyCik: facts.cik, year: year, facts: facts) {
-                                    var updatedResults = roicResults
-                                    updatedResults[year] = roic
-                                    roicResults = updatedResults
-                                }
-                            }) {
-                                HStack {
-                                    Text("\(year)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.blue)
-                                    Spacer()
-                                    if let roic = roicResults[year] {
-                                        Text(String(format: "%.2f%%", roic * 100))
+                        ForEach(bookValueReadyYears.dropLast(), id: \.self) { startYear in
+                            if let endYear = bookValueReadyYears.first(where: { $0 > startYear }) {
+                                Button(action: {
+                                    if let growth = bookValueGrowthManager.calculateBookValueGrowthForYears(companyCik: facts.cik, startYear: startYear, endYear: endYear, facts: facts) {
+                                        var updatedResults = bookValueGrowthResults
+                                        updatedResults[startYear] = growth
+                                        bookValueGrowthResults = updatedResults
+                                    }
+                                }) {
+                                    HStack {
+                                        Text("\(startYear) to \(endYear)")
                                             .font(.subheadline)
                                             .foregroundColor(.blue)
+                                        Spacer()
+                                        if let growth = bookValueGrowthResults[startYear] {
+                                            Text(String(format: "%.2f%%", growth))
+                                                .font(.subheadline)
+                                                .foregroundColor(.blue)
+                                        }
                                     }
+                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, 12)
+                                    .background(Color.green.opacity(0.2))
+                                    .cornerRadius(8)
                                 }
-                                .padding(.vertical, 8)
-                                .padding(.horizontal, 12)
-                                .background(Color.green.opacity(0.2))
-                                .cornerRadius(8)
                             }
                         }
                     }
                     .padding(.top, 15)
                 }
-
-                if hasGatheredROIC {
-                    let availableYears = roicManager.roicReadyYears(companyCik: facts.cik, facts: facts)
-                    let yearsCount = availableYears.count
-                    let validPeriods = periods.filter { $0 <= yearsCount }
+                
+                if hasGatheredBookValue {
+                    let availableYears = bookValueGrowthManager.bookValueReadyYears(companyCik: facts.cik, facts: facts)
+                    let validPeriods = periods.filter { $0 < availableYears.count }
                     
                     if !validPeriods.isEmpty {
                         VStack(alignment: .leading, spacing: 15) {
-                            Text("ROIC Averages")
+                            Text("Book Value Growth Averages")
                                 .font(.headline)
                             ForEach(validPeriods, id: \.self) { period in
                                 Button(action: {
-                                    if let roicAvg = roicManager.calculateROICAverages(companyCik: facts.cik, facts: facts, periods: [period])[period] {
-                                        var updatedAverages = roicAverageResults
-                                        updatedAverages[period] = roicAvg
-                                        roicAverageResults = updatedAverages
+                                    let averages = bookValueGrowthManager.calculateBookValueGrowthAverages(companyCik: facts.cik, facts: facts, periods: [period])
+                                    if let avg = averages[period] {
+                                        var updatedAverages = bookValueGrowthAverageResults
+                                        updatedAverages[period] = avg
+                                        bookValueGrowthAverageResults = updatedAverages
                                     }
                                 }) {
                                     HStack {
@@ -127,8 +128,8 @@ struct SUIROICView: View {
                                             .font(.subheadline)
                                             .foregroundColor(.blue)
                                         Spacer()
-                                        if let roicAvg = roicAverageResults[period] {
-                                            Text(String(format: "%.1f%%", roicAvg))
+                                        if let avg = bookValueGrowthAverageResults[period] {
+                                            Text(String(format: "%.1f%%", avg))
                                                 .font(.subheadline)
                                                 .foregroundColor(.blue)
                                         }
@@ -142,7 +143,7 @@ struct SUIROICView: View {
                         }
                         .padding(.top, 15)
                     } else {
-                        Text("Not enough data for ROIC averages (need at least 1 year)")
+                        Text("Not enough data for Book Value growth averages (need at least 2 years)")
                             .font(.subheadline)
                             .foregroundColor(.gray)
                             .padding(.top, 15)
@@ -153,24 +154,24 @@ struct SUIROICView: View {
             .background(Color(.systemGray6))
             .cornerRadius(12)
         } // End ScrollView
-        .navigationTitle("ROIC Analysis") // Optional: standalone title
+        .navigationTitle("Book Value Growth Analysis") // Optional: standalone title
         .alert(isPresented: $showingClearConfirmation) {
             Alert(
-                title: Text("Clear Saved ROIC Metrics"),
-                message: Text("Are you sure you want to clear all saved ROIC metrics for this company?"),
+                title: Text("Clear Saved Book Value Metrics"),
+                message: Text("Are you sure you want to clear all saved Book Value metrics?"),
                 primaryButton: .destructive(Text("Clear")) {
-                    roicManager.clearMetrics(companyCik: facts.cik)
-                    roicReadyYears = []
-                    hasGatheredROIC = false
-                    roicResults = [:]
-                    roicAverageResults = [:]
+                    bookValueGrowthManager.clearMetrics(companyCik: facts.cik)
+                    bookValueReadyYears = []
+                    hasGatheredBookValue = false
+                    bookValueGrowthResults = [:]
+                    bookValueGrowthAverageResults = [:]
                 },
                 secondaryButton: .cancel()
             )
         }
     }
     
-    private func SavedMetricsSection(metricYears: Set<ROICMetricYear>, manager: ROICManager) -> some View {
+    private func SavedMetricsSection(metricYears: Set<BookValueMetricYear>, manager: BookValueGrowthManager) -> some View {
         let groupedByMetric = Dictionary(grouping: metricYears, by: { $0.metricKey })
         return ForEach(groupedByMetric.keys.sorted(), id: \.self) { metricKey in
             if let metricData = facts.facts.usGaap?[metricKey] {
@@ -186,7 +187,7 @@ struct SUIROICView: View {
                                 let savedYears = groupedByMetric[metricKey]?.map { $0.year } ?? []
                                 let filteredDataPoints = dataPoints.filter { savedYears.contains($0.fy) }
                                 if !filteredDataPoints.isEmpty {
-                                    UnitSectionView<ROICMetricYear>(
+                                    UnitSectionView<BookValueMetricYear>(
                                         unit: unit,
                                         dataPoints: filteredDataPoints,
                                         metricKey: metricKey,

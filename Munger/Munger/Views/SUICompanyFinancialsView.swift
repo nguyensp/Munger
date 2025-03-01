@@ -1,8 +1,7 @@
-//
 //  SUICompanyFinancialsView.swift
 //  Munger
 //
-//  Created by Paul Nguyen on 1/31/25.
+//  Created by Paul Nguyen on 1/31/25 (updated 3/1/25)
 //
 
 import SwiftUI
@@ -10,7 +9,7 @@ import Combine
 
 struct SUICompanyFinancialsView: View {
     @EnvironmentObject private var viewModel: CompanyFinancialsViewModel
-   
+    
     @State private var selectedView = ViewType.annual
     let company: Company
     
@@ -58,7 +57,77 @@ struct SUICompanyFinancialsView: View {
                     case .saved:
                         SUISavedMetricsView(facts: facts)
                     case .calculate:
-                        SUIROICView(facts: facts)
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Calculations")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .padding(.bottom, 8)
+                            
+                            NavigationLink(destination: SUIROICView(facts: facts)) {
+                                HStack {
+                                    Text("Return on Invested Capital (ROIC)")
+                                        .foregroundColor(.blue)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.gray)
+                                }
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(8)
+                            }
+                            
+                            NavigationLink(destination: SUIEPSGrowthView(facts: facts)) {
+                                HStack {
+                                    Text("EPS Growth")
+                                        .foregroundColor(.blue)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.gray)
+                                }
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(8)
+                            }
+                            
+                            NavigationLink(destination: SUISalesGrowthView(facts: facts)) {
+                                HStack {
+                                    Text("Sales Growth")
+                                        .foregroundColor(.blue)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.gray)
+                                }
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(8)
+                            }
+                            
+                            NavigationLink(destination: SUIBookValueGrowthView(facts: facts)) {
+                                HStack {
+                                    Text("Book Value Growth")
+                                        .foregroundColor(.blue)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.gray)
+                                }
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(8)
+                            }
+                            
+                            NavigationLink(destination: SUIFCFGrowthView(facts: facts)) {
+                                HStack {
+                                    Text("Free Cash Flow Growth")
+                                        .foregroundColor(.blue)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.gray)
+                                }
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(8)
+                            }
+                        }
                     }
                 }
                 
