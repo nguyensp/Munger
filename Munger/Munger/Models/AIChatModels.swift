@@ -8,6 +8,7 @@
 public enum AIProvider {
     case openai
     case deepseek
+    case grok
     
     var baseURL: String {
         switch self {
@@ -15,6 +16,8 @@ public enum AIProvider {
             return "https://api.openai.com/v1/chat/completions"
         case .deepseek:
             return "https://api.deepseek.com/v1/chat/completions"
+        case .grok:
+            return "https://api.x.ai/v1/chat/completions"
         }
     }
     
@@ -24,6 +27,8 @@ public enum AIProvider {
             return "gpt-4-turbo-preview"
         case .deepseek:
             return "deepseek-chat"
+        case .grok:
+            return "grok-beta"
         }
     }
 }

@@ -11,6 +11,7 @@ struct SUIAIChatView: View {
     @EnvironmentObject var viewModel: AIChatViewModel
     @State private var messageText = ""
     @FocusState private var isTextFieldFocused: Bool
+    @State private var selectedProvider: AIProvider = .openai // Default to OpenAI
     
     var body: some View {
         VStack(spacing: 0) {
@@ -76,14 +77,23 @@ struct SUIAIChatView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
-                    Button("OpenAI") { viewModel.setProvider(.openai) }
-                    Button("DeepSeek") { viewModel.setProvider(.deepseek) }
+                    Picker("Change Model", selection: $selectedProvider) {
+                        Text("OpenAI").tag(AIProvider.openai)
+                        Text("DeepSeek").tag(AIProvider.deepseek)
+                        Text("Grok").tag(AIProvider.grok)
+                    }
+                    .onChange(of: selectedProvider) { newProvider in
+                        viewModel.setProvider(newProvider)
+                        viewModel.clearChat() // Optional: reset chat for new model
+                    }
+                    
                     Divider()
+                    
                     Button("Clear Chat", role: .destructive) {
                         viewModel.clearChat()
                     }
                 } label: {
-                    Image(systemName: "ellipsis.circle")
+                    Label("Change Model", systemImage: "gearshape")
                 }
             }
         }
@@ -122,4 +132,5 @@ struct MessageBubble: View {
     let factory = ServiceFactory()
     let coordinator = AppCoordinator(serviceFactory: factory)
     SUIAIChatView()
+        .environmentObject(coordinator.aichatViewModel)
 }

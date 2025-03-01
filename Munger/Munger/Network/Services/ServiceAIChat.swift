@@ -16,7 +16,7 @@ public final class ServiceAIChat {
     
     init(
         requestDispatcher: RequestDispatcher,
-        provider: AIProvider = .openai
+        provider: AIProvider = .openai // OpenAI remains default
     ) {
         self.requestDispatcher = requestDispatcher
         self.provider = provider
@@ -36,24 +36,34 @@ public final class ServiceAIChat {
         // Add user message to history
         messages.append(Message(role: "user", content: content))
         
-        // Extensive logging
+        // Logging
         print("🔍 Sending message to AI")
         print("🌐 Provider: \(provider)")
-        print("🔑 API Key (first 5 chars): \(String(Config.openAIKey.prefix(5)))")
         
         guard let url = URL(string: provider.baseURL) else {
             print("🚨 ERROR: Invalid URL - \(provider.baseURL)")
-            return Fail(error: URLError(.badURL) as Error)
-                .eraseToAnyPublisher()
+            return Fail(error: URLError(.badURL)).eraseToAnyPublisher()
         }
         
+        // Use provider-specific model and key
         let body = ChatRequestBody(
-            model: "gpt-4o-mini", // Updated to latest model
+            model: provider.model, // Dynamic model from AIProvider
             messages: messages,
             temperature: 0.7
         )
         
-        let apiKey = Config.openAIKey
+        let apiKey: String
+        switch provider {
+        case .openai:
+            apiKey = Config.openAIKey
+            print("🔑 Using OpenAI Key (first 5 chars): \(String(Config.openAIKey.prefix(5)))")
+        case .deepseek:
+            apiKey = Config.deepSeekKey // Add this to Config if using DeepSeek
+            print("🔑 Using DeepSeek Key (first 5 chars): \(String(Config.deepSeekKey.prefix(5)))")
+        case .grok:
+            apiKey = Config.xAIKey // Add this to Config
+            print("🔑 Using xAI Key (first 5 chars): \(String(Config.xAIKey.prefix(5)))")
+        }
         
         let headers = [
             "Content-Type": "application/json",
@@ -75,7 +85,6 @@ public final class ServiceAIChat {
         
         return requestDispatcher.dispatch(request: urlRequest)
             .tryMap { (data: Data) -> String in
-                // Log response data for debugging
                 if let jsonString = String(data: data, encoding: .utf8) {
                     print("📥 Response Data: \(jsonString)")
                 }
@@ -86,12 +95,10 @@ public final class ServiceAIChat {
                     throw URLError(.cannotParseResponse)
                 }
                 
-                // Add AI response to history
                 self.messages.append(message)
                 return message.content
             }
             .mapError { (error: Error) -> Error in
-                // Detailed error logging
                 print("🚨 Network Error: \(error)")
                 print("🚨 Error Type: \(type(of: error))")
                 if let urlError = error as? URLError {
@@ -107,4 +114,3 @@ public final class ServiceAIChat {
         messages = [messages[0]] // Keep only the system message
     }
 }
-
