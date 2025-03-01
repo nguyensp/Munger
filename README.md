@@ -16,8 +16,9 @@ Anyway, cheers to AI which is force multiplier on software engineering learning 
 
 - Paul Nguyen, 02/05/25
 
-Architecture Overview: https://excalidraw.com/#json=7TrwXfcGT4NIg2pZLlG5N,VeHSsDfe3HA--CO_qmJMsw
+Architecture Overview 2/23/25: 
+https://excalidraw.com/#json=7TrwXfcGT4NIg2pZLlG5N,VeHSsDfe3HA--CO_qmJMsw
 
-Currently, 02/19/25:
-https://github.com/user-attachments/assets/a7d99398-da7d-4464-b909-48dbe356d0a3
+Current Iteration 2/28/25:
+https://github.com/user-attachments/assets/0d463118-ab12-4ec7-9ba1-88b6660afd9e
 
