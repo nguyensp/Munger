@@ -113,4 +113,42 @@ public final class ServiceAIChat {
     func clearConversation() {
         messages = [messages[0]] // Keep only the system message
     }
+    
+    func generateEmbedding(for text: String) -> AnyPublisher<[Float], Error> {
+        guard let url = URL(string: "https://api.openai.com/v1/embeddings") else {
+            return Fail(error: URLError(.badURL)).eraseToAnyPublisher()
+        }
+
+        let requestBody: [String: Any] = [
+            "input": text,
+            "model": "text-embedding-ada-002"
+        ]
+
+        let headers = [
+            "Content-Type": "application/json",
+            "Authorization": "Bearer \(Config.openAIKey)" // Uses existing API key
+        ]
+
+        let urlRequest = RequestBuilder.createRequest(
+            url: url,
+            method: "POST",
+            header: headers,
+            body: try? JSONSerialization.data(withJSONObject: requestBody)
+        )
+
+        return requestDispatcher.dispatch(request: urlRequest)
+            .tryMap { (data: Data) -> [Float] in
+                let response = try JSONDecoder().decode(EmbeddingResponse.self, from: data)
+                guard let embeddingArray = response.data.first?.embedding else {
+                    throw URLError(.cannotParseResponse)
+                }
+                return embeddingArray
+            }
+            .mapError { error in
+                print("🚨 Embedding API Error: \(error)")
+                return error
+            }
+            .eraseToAnyPublisher()
+    }
+
 }

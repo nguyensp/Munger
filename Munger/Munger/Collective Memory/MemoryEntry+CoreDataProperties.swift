@@ -15,13 +15,13 @@ extension MemoryEntry {
         return NSFetchRequest<MemoryEntry>(entityName: "MemoryEntry")
     }
 
-    @NSManaged public var emotionScore: Double
     @NSManaged public var id: UUID
     @NSManaged public var text: String
     @NSManaged public var timestamp: Date
+    @NSManaged public var emotionScore: Double // 🔥 NEW: Used to prioritize memories
+    @NSManaged public var embedding: [Float]? // 🔥 NEW: Used for AI-powered search
     @NSManaged public var tags: Set<Tag>? // Many-to-Many Relationship
 
-    // Auto-assign UUID & timestamp on insert
     override public func awakeFromInsert() {
         super.awakeFromInsert()
         id = UUID()
